@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline — WillHappen.ai</title>
+<meta name="description" content="Every prediction, in order. Rewind time to see what the models said — and whether it happened.">
+<meta property="og:title" content="The Timeline — WillHappen.ai">
+<meta property="og:description" content="Every prediction, in order. Rewind time. See what happened.">
+<meta property="og:url" content="https://willhappen.ai/timeline">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://willhappen.ai/timeline">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="/"><span class="dot"></span>will<i>happen</i><small>.ai</small></a>
+  <div class="nav-links">
+    <a href="/timeline">Timeline</a>
+    <a href="/suggest">Suggest</a>
+    <a class="nav-pill" href="https://github.com/dmusato/willhappen.ai" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+
+<main>
+  <section style="max-width:860px;margin:0 auto;padding:40px 32px 0;">
+    <div class="mono">THE TIMELINE</div>
+    <div class="display" style="font-size:clamp(48px,8vw,72px);margin-top:8px;">
+      All predictions,<br><i style="color:var(--text-dim);">in order.</i>
+    </div>
+    <p style="color:var(--text-dim);margin-top:16px;max-width:560px;line-height:1.6;">
+      Drag the dot to rewind — hide future predictions, or let the timeline stretch to 100 years out.
+      Every row links to the full consensus breakdown, with model-by-model reasoning.
+    </p>
+  </section>
+
+  <section class="feed" id="timeline-list" style="padding-top:24px;"></section>
+
+  <div class="card rewind" aria-label="rewind time slider">
+    <div class="label" id="rewind-label">NOW</div>
+    <input id="rewind" type="range" min="0" max="100" step="1" value="100" aria-label="maximum years ahead">
+    <div class="label">+100Y</div>
+  </div>
+
+  <section style="max-width:1100px;margin:40px auto 0;padding:0 32px;">
+    <div class="mono" style="margin-bottom:12px;">TOPIC × HORIZON MATRIX</div>
+    <div class="card" id="calendar" style="padding:16px;"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div>Open source · <a href="https://github.com/dmusato/willhappen.ai" rel="noopener">github.com/dmusato/willhappen.ai</a></div>
+  <div>Questions? <a href="https://github.com/dmusato/willhappen.ai/issues" rel="noopener">Open an issue</a></div>
+</footer>
+
+<script src="/assets/app.js"></script>
+<script>WH.renderTimeline();</script>
+
+</body>
+</html>

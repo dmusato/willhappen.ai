@@ -1,0 +1,299 @@
+{
+  "generated_at": "2026-04-19T00:00:00Z",
+  "predictions": [
+    {
+      "id": "p1",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:00:00Z",
+      "topic": "ai",
+      "horizon": "1w",
+      "created_at": "2026-04-19",
+      "resolves_by": "2026-04-26",
+      "headline": "A major frontier lab ships a multi-agent coding product",
+      "consensus_prob": 87,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",               "prob": 89, "note": "Shipping cadence + telemetry spikes",            "queried_at": "2026-04-19T03:02:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                    "prob": 84, "note": "Compute allocation suggests imminent launch",    "queried_at": "2026-04-19T03:02:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                   "prob": 90, "note": "Benchmark leaks point to release window",        "queried_at": "2026-04-19T03:02:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                    "prob": 82, "note": "Social signals trending toward reveal",          "queried_at": "2026-04-19T03:02:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",    "prob": 85, "note": "Open-source agent stacks close to parity",       "queried_at": "2026-04-19T03:02:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                         "prob": 90, "note": "Replication of agent-loop papers is converging", "queried_at": "2026-04-19T03:02:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p2",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:05:00Z",
+      "topic": "climate",
+      "horizon": "1y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2027-04-19",
+      "headline": "Global temp anomaly exceeds +1.6°C versus pre-industrial",
+      "consensus_prob": 62,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",           "prob": 65, "note": "ENSO-neutral with ocean heat content high",      "queried_at": "2026-04-19T03:05:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                "prob": 58, "note": "Conditional on La Niña onset timing",            "queried_at": "2026-04-19T03:05:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                               "prob": 64, "note": "Post-El-Niño rebound path likely breached",      "queried_at": "2026-04-19T03:05:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                "prob": 60, "note": "Satellite records support upward drift",         "queried_at": "2026-04-19T03:05:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct", "prob": 61, "note": "Open climate models show narrow band above",     "queried_at": "2026-04-19T03:05:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                     "prob": 63, "note": "Ensemble mean from CMIP7 draft runs",            "queried_at": "2026-04-19T03:05:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p3",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:08:00Z",
+      "topic": "space",
+      "horizon": "5y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2031-04-19",
+      "headline": "First crewed lunar landing since Apollo 17",
+      "consensus_prob": 41,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 38, "note": "Artemis timeline continues to slip",        "queried_at": "2026-04-19T03:08:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 45, "note": "Starship HLS cadence improving",           "queried_at": "2026-04-19T03:08:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "Hardware ready, integration risk remains", "queried_at": "2026-04-19T03:08:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 48, "note": "Private lunar ventures add a pathway",     "queried_at": "2026-04-19T03:08:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 42, "note": "Ops readiness lags hardware by ~18 months","queried_at": "2026-04-19T03:08:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 34, "note": "Heritage schedule risk dominates",          "queried_at": "2026-04-19T03:08:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p4",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:11:00Z",
+      "topic": "markets",
+      "horizon": "3y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2029-04-19",
+      "headline": "The S&P 500 closes above 8,000 at least once",
+      "consensus_prob": 73,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 74, "note": "Earnings growth + AI capex cycle",      "queried_at": "2026-04-19T03:11:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 70, "note": "Valuation compression a real risk",     "queried_at": "2026-04-19T03:11:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 76, "note": "Nominal path is trending",              "queried_at": "2026-04-19T03:11:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 78, "note": "Retail flows remain structural",        "queried_at": "2026-04-19T03:11:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 72, "note": "Fair-value nominal path supports it",    "queried_at": "2026-04-19T03:11:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 67, "note": "Terminal rate uncertainty widens fan",  "queried_at": "2026-04-19T03:11:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p5",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:14:00Z",
+      "topic": "ai",
+      "horizon": "10y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2036-04-19",
+      "headline": "An AI system wins a recognized Nobel Prize outright",
+      "consensus_prob": 28,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 22, "note": "Attribution conventions remain human-centric", "queried_at": "2026-04-19T03:14:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 32, "note": "Joint-award pathway increasingly plausible",    "queried_at": "2026-04-19T03:14:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 30, "note": "Chemistry or Medicine most likely vector",       "queried_at": "2026-04-19T03:14:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 38, "note": "Committee norms evolving fast",                  "queried_at": "2026-04-19T03:14:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 26, "note": "Human-in-the-loop caveats dominate",              "queried_at": "2026-04-19T03:14:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 18, "note": "Governance lag dominates",                        "queried_at": "2026-04-19T03:14:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p6",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:17:00Z",
+      "topic": "geo",
+      "horizon": "1m",
+      "created_at": "2026-04-19",
+      "resolves_by": "2026-05-19",
+      "headline": "A new trade bloc forms in Southeast Asia",
+      "consensus_prob": 54,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 55, "note": "Ministerial track aligned",               "queried_at": "2026-04-19T03:17:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Ratification risk non-trivial",          "queried_at": "2026-04-19T03:17:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 58, "note": "Diplomatic signals are unusually warm",  "queried_at": "2026-04-19T03:17:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 60, "note": "Back-channel activity is elevated",      "queried_at": "2026-04-19T03:17:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 52, "note": "Regional framework has momentum",         "queried_at": "2026-04-19T03:17:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 49, "note": "Domestic politics could delay",           "queried_at": "2026-04-19T03:17:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p7",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:20:00Z",
+      "topic": "health",
+      "horizon": "6m",
+      "created_at": "2026-04-19",
+      "resolves_by": "2026-10-19",
+      "headline": "First CRISPR therapy approved for a common genetic disease",
+      "consensus_prob": 81,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 82, "note": "Phase III data was strong",        "queried_at": "2026-04-19T03:20:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 78, "note": "FDA calendar supports it",         "queried_at": "2026-04-19T03:20:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 85, "note": "Manufacturing cleared",            "queried_at": "2026-04-19T03:20:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 80, "note": "Advisory committee backing",       "queried_at": "2026-04-19T03:20:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 83, "note": "Label expansion path is clean",     "queried_at": "2026-04-19T03:20:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 79, "note": "Pricing negotiations near close",   "queried_at": "2026-04-19T03:20:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p8",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:23:00Z",
+      "topic": "energy",
+      "horizon": "1y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2027-04-19",
+      "headline": "Solar + storage cheaper than any fossil baseline in 10 more countries",
+      "consensus_prob": 69,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 72, "note": "LCOE curves hold trajectory",              "queried_at": "2026-04-19T03:23:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 65, "note": "Interest rates slow buildout",             "queried_at": "2026-04-19T03:23:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 70, "note": "Panel oversupply persists",                "queried_at": "2026-04-19T03:23:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 74, "note": "China export wedge still widening",        "queried_at": "2026-04-19T03:23:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 69, "note": "Storage economics still improving",        "queried_at": "2026-04-19T03:23:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 66, "note": "Grid interconnect lead times bite",        "queried_at": "2026-04-19T03:23:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p9",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:26:00Z",
+      "topic": "crypto",
+      "horizon": "3y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2029-04-19",
+      "headline": "A G7 nation adopts Bitcoin as a reserve asset",
+      "consensus_prob": 34,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 28, "note": "Central bank resistance remains",    "queried_at": "2026-04-19T03:26:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 36, "note": "Political pressure building",         "queried_at": "2026-04-19T03:26:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "One cycle from plausible",            "queried_at": "2026-04-19T03:26:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 52, "note": "Sovereign adoption wave is here",     "queried_at": "2026-04-19T03:26:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 32, "note": "Reserve diversification trend helps",  "queried_at": "2026-04-19T03:26:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 16, "note": "Institutional inertia dominates",     "queried_at": "2026-04-19T03:26:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p10",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:29:00Z",
+      "topic": "tech",
+      "horizon": "5y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2031-04-19",
+      "headline": "AR glasses outsell smartphones in at least one quarter",
+      "consensus_prob": 58,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 54, "note": "Form factor breakthroughs needed",   "queried_at": "2026-04-19T03:29:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 62, "note": "Meta + Apple roadmaps converge",     "queried_at": "2026-04-19T03:29:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 60, "note": "Developer platform maturing",        "queried_at": "2026-04-19T03:29:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 70, "note": "Replacement cycle is aligning",      "queried_at": "2026-04-19T03:29:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 56, "note": "Open display stacks advancing",      "queried_at": "2026-04-19T03:29:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 48, "note": "Smartphone lock-in is sticky",       "queried_at": "2026-04-19T03:29:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p11",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-19T12:00:00Z",
+      "topic": "culture",
+      "horizon": "1m",
+      "created_at": "2026-02-19",
+      "resolves_by": "2026-03-19",
+      "headline": "A non-English-language film dominates the global box office",
+      "consensus_prob": 92,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 94, "note": "Festival momentum is massive",            "queried_at": "2026-02-19T12:00:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 90, "note": "Distribution is locked in",               "queried_at": "2026-02-19T12:00:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 93, "note": "Streaming overlap helps",                 "queried_at": "2026-02-19T12:00:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 95, "note": "Word of mouth already huge",              "queried_at": "2026-02-19T12:00:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 91, "note": "Global demand signal is unambiguous",     "queried_at": "2026-02-19T12:00:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 88, "note": "Release slot is favorable",               "queried_at": "2026-02-19T12:00:20Z" }
+      },
+      "verdict": true, "verdict_source": "maintainer", "verdict_note": "Confirmed by box-office data, 2026-03-19"
+    },
+    {
+      "id": "p12",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-19T12:30:00Z",
+      "topic": "ai",
+      "horizon": "1m",
+      "created_at": "2026-02-19",
+      "resolves_by": "2026-03-19",
+      "headline": "OpenAI and Anthropic announce a joint safety framework",
+      "consensus_prob": 44,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 42, "note": "Governance gap closing but slowly",        "queried_at": "2026-02-19T12:30:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Behind-the-scenes work exists",            "queried_at": "2026-02-19T12:30:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "Competitive pressures cut both ways",      "queried_at": "2026-02-19T12:30:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 55, "note": "Regulatory nudge incoming",                "queried_at": "2026-02-19T12:30:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 44, "note": "Open-source coalition not part of deal",   "queried_at": "2026-02-19T12:30:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 35, "note": "Public stance still divergent",            "queried_at": "2026-02-19T12:30:20Z" }
+      },
+      "verdict": false, "verdict_source": "maintainer", "verdict_note": "No joint announcement by 2026-03-19"
+    },
+    {
+      "id": "p13",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:32:00Z",
+      "topic": "space",
+      "horizon": "50y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2076-04-19",
+      "headline": "A permanent, self-sustaining human settlement on Mars",
+      "consensus_prob": 67,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 62, "note": "Propulsion + closed-loop life support converging", "queried_at": "2026-04-19T03:32:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 70, "note": "Private industry bends the curve",                  "queried_at": "2026-04-19T03:32:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 65, "note": "Self-sustaining is a high bar",                     "queried_at": "2026-04-19T03:32:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 82, "note": "Musk timeline extrapolated",                        "queried_at": "2026-04-19T03:32:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 66, "note": "Mid-century if funding holds",                      "queried_at": "2026-04-19T03:32:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 56, "note": "Radiation + biology risk elevated",                 "queried_at": "2026-04-19T03:32:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    },
+    {
+      "id": "p14",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-19T03:35:00Z",
+      "topic": "climate",
+      "horizon": "100y",
+      "created_at": "2026-04-19",
+      "resolves_by": "2126-04-19",
+      "headline": "Net global CO₂ emissions reach zero and stay there",
+      "consensus_prob": 51,
+      "models": {
+        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 55, "note": "Policy trajectory bends by mid-century", "queried_at": "2026-04-19T03:35:10Z" },
+        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Residual emissions persist",             "queried_at": "2026-04-19T03:35:12Z" },
+        "gpt":      { "provider": "openai/gpt-5",                                "prob": 52, "note": "Carbon removal scales",                  "queried_at": "2026-04-19T03:35:14Z" },
+        "grok":     { "provider": "grok/grok-4",                                 "prob": 60, "note": "Tech optimism case",                     "queried_at": "2026-04-19T03:35:16Z" },
+        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 50, "note": "Depends on DAC cost curve holding",      "queried_at": "2026-04-19T03:35:18Z" },
+        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 40, "note": "Historical track record cautions",       "queried_at": "2026-04-19T03:35:20Z" }
+      },
+      "verdict": null, "verdict_source": null, "verdict_note": null
+    }
+  ]
+}

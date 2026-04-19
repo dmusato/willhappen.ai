@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://willhappen.ai/sitemap.xml

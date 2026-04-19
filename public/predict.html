@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prediction — WillHappen.ai</title>
+<meta name="description" content="Consensus forecast from six frontier AI models.">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="/"><span class="dot"></span>will<i>happen</i><small>.ai</small></a>
+  <div class="nav-links">
+    <a href="/timeline">Timeline</a>
+    <a href="/suggest">Suggest</a>
+    <a class="nav-pill" href="https://github.com/dmusato/willhappen.ai" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+
+<main>
+  <section id="detail" class="detail-wrap"></section>
+</main>
+
+<footer class="foot">
+  <div>Open source · <a href="https://github.com/dmusato/willhappen.ai" rel="noopener">github.com/dmusato/willhappen.ai</a></div>
+  <div><a href="/timeline">All predictions</a> · <a href="/suggest">Suggest a prediction</a></div>
+</footer>
+
+<script src="/assets/app.js"></script>
+<script>
+  var id = new URLSearchParams(location.search).get("id");
+  if (id) WH.renderDetail(id);
+  else document.getElementById("detail").innerHTML =
+    '<h2 class="display" style="font-size:36px;">Which prediction?</h2>' +
+    '<p><a class="pill" href="/timeline">Browse the timeline</a></p>';
+</script>
+
+</body>
+</html>

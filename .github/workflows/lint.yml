@@ -1,0 +1,26 @@
+# Minimal CI: syntax-check Worker code on every PR. Everything else
+# (generation, deployment) runs inside Cloudflare.
+name: lint
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: |
+          for f in src/worker.js src/handlers/*.js src/generate/*.js; do
+            node --check "$f"
+          done
+      - name: Validate JSON
+        run: |
+          for f in public/data/*.json data/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+          done

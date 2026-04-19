@@ -1,0 +1,48 @@
+# Single Cloudflare project: static assets + API + cron generator + KV + AI.
+# Deploy:  wrangler deploy
+# Secrets: wrangler secret put <NAME>
+
+name = "willhappen-ai"
+main = "src/worker.js"
+compatibility_date = "2025-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+workers_dev = false
+routes = [
+  { pattern = "willhappen.ai/*",     custom_domain = true },
+  { pattern = "www.willhappen.ai/*", custom_domain = true },
+]
+
+[assets]
+directory = "./public"
+binding   = "ASSETS"
+not_found_handling = "404-page"
+
+[[kv_namespaces]]
+binding = "WH_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+# create once:  wrangler kv namespace create WH_KV
+
+[ai]
+binding = "AI"   # Workers AI — used for Llama inference
+
+[triggers]
+crons = ["17 3 * * *"]   # nightly 03:17 UTC — generate fresh predictions
+
+[vars]
+AI_GATEWAY_ACCOUNT_ID = "REPLACE_WITH_CF_ACCOUNT_ID"
+AI_GATEWAY_ID         = "willhappen"
+REPO                  = "dmusato/willhappen.ai"
+SITE_URL              = "https://willhappen.ai"
+
+[observability]
+enabled = true
+
+# Secrets (set via `wrangler secret put <NAME>`):
+#   AI_GATEWAY_TOKEN         - AI Gateway bearer
+#   OPENAI_API_KEY           - openai/* provider
+#   ANTHROPIC_API_KEY        - anthropic/* provider
+#   GOOGLE_AI_STUDIO_API_KEY - google-ai-studio/* provider
+#   XAI_API_KEY              - grok/* provider
+#   DEEPSEEK_API_KEY         - deepseek/* provider
+#   GH_TOKEN                 - creating suggestion issues

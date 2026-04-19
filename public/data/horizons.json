@@ -1,0 +1,11 @@
+[
+  { "id": "1w",   "label": "1 week",    "days": 7,     "short": "1W" },
+  { "id": "1m",   "label": "1 month",   "days": 30,    "short": "1M" },
+  { "id": "6m",   "label": "6 months",  "days": 180,   "short": "6M" },
+  { "id": "1y",   "label": "1 year",    "days": 365,   "short": "1Y" },
+  { "id": "3y",   "label": "3 years",   "days": 1095,  "short": "3Y" },
+  { "id": "5y",   "label": "5 years",   "days": 1825,  "short": "5Y" },
+  { "id": "10y",  "label": "10 years",  "days": 3650,  "short": "10Y" },
+  { "id": "50y",  "label": "50 years",  "days": 18250, "short": "50Y" },
+  { "id": "100y", "label": "100 years", "days": 36500, "short": "100Y" }
+]

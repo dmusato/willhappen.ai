@@ -1,0 +1,35 @@
+name: "Report an outcome"
+description: "Tell us a prediction resolved — with a credible source."
+title: "Outcome: "
+labels: ["outcome", "verification"]
+body:
+  - type: input
+    id: prediction_id
+    attributes:
+      label: Prediction ID
+      description: The `id` from the prediction URL (e.g. `p3` or `a1k9f4x7`).
+      placeholder: "p3"
+    validations:
+      required: true
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: What happened?
+      options:
+        - "Happened ✓"
+        - "Didn't happen ✗"
+        - "Unclear"
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Credible source(s)
+      description: Links to reputable reporting, official data, etc.
+      placeholder: "https://reuters.com/..."
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
