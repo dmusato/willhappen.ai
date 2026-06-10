@@ -15,7 +15,7 @@ export async function runGeneration(env, { cron } = {}) {
   const existing = archive.predictions || [];
 
   const candidates = pickSlots(existing, BATCH_PER_RUN);
-  console.log(`[gen] slots:`, candidates.map((s) => `${s.topic}/${s.horizon}`).join(", "));
+  console.log(`[gen] slots:`, candidates.map((s) => `${s.topic.id}/${s.horizon.id}`).join(", "));
 
   const newEntries = [];
   for (const slot of candidates) {
@@ -92,7 +92,7 @@ async function generateOne(env, { topic, horizon }) {
   const consensus = probs.length ? median(probs) : 50;
 
   return {
-    id: newId(existingIdsFromEnv(env)),
+    id: newId(),
     source: "auto",
     question_generated_by: `${QUESTION_DRAFTER.provider}/${QUESTION_DRAFTER.model}`,
     question_generated_at: now,
@@ -108,8 +108,6 @@ async function generateOne(env, { topic, horizon }) {
     verdict_note: null,
   };
 }
-
-function existingIdsFromEnv() { return new Set(); } // placeholder; real dedupe in merge
 
 function mergeArchive(existing, fresh) {
   const byId = new Map(existing.map((p) => [p.id, p]));

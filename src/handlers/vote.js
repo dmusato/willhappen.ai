@@ -25,17 +25,18 @@ export async function handleVote(request, env) {
     return json({ error: "bad request" }, 400);
   }
 
-  // Rate-limit per fingerprint: at most 1 change per 2s.
-  const rlKey = `rl:${fp}`;
-  const rl = await env.WH_KV.get(rlKey);
-  if (rl) return json({ error: "rate_limited" }, 429);
-  await env.WH_KV.put(rlKey, "1", { expirationTtl: 2 });
-
   const prior = await env.WH_KV.get(userKey(id, fp));
   const tally = (await env.WH_KV.get(tallyKey(id), "json")) || { yes: 0, no: 0 };
 
   if (prior === verdict) {
     return json({ ...tally, total: tally.yes + tally.no, unchanged: true });
+  }
+
+  // Allow changing a vote at most once per minute (KV minimum TTL).
+  if (prior) {
+    const rlKey = `rl:${id}:${fp}`;
+    if (await env.WH_KV.get(rlKey)) return json({ error: "rate_limited" }, 429);
+    await env.WH_KV.put(rlKey, "1", { expirationTtl: 60 });
   }
   if (prior && VALID.has(prior)) tally[prior] = Math.max(0, (tally[prior] || 0) - 1);
   tally[verdict] = (tally[verdict] || 0) + 1;

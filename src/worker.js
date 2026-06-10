@@ -11,6 +11,7 @@ import { handleSuggest } from "./handlers/suggest.js";
 import { handlePredictions } from "./handlers/predictions.js";
 import { handleOg } from "./handlers/og.js";
 import { runGeneration } from "./generate/generate.js";
+import { runSocialPosting } from "./social/index.js";
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
@@ -47,6 +48,7 @@ export default {
       if (p === "/api/suggest")              return await handleSuggest(request, env, ctx);
       if (p.startsWith("/og/"))              return await handleOg(request, env, ctx);
       if (p === "/api/health")               return json({ ok: true, time: new Date().toISOString() });
+      if (p === "/api/admin/run")            return await handleAdminRun(request, env, ctx);
     } catch (err) {
       console.error("handler error", err);
       return json({ error: String(err?.message || err) }, 500);
@@ -71,9 +73,28 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runGeneration(env, { cron: event.cron }));
+    ctx.waitUntil((async () => {
+      await runGeneration(env, { cron: event.cron });
+      await runSocialPosting(env);
+    })());
   },
 };
+
+// POST /api/admin/run  { generate?: true, social?: true }
+// Manual trigger for testing — requires `authorization: Bearer <ADMIN_TOKEN>`.
+async function handleAdminRun(request, env) {
+  if (request.method !== "POST") return new Response("method not allowed", { status: 405 });
+  const auth = request.headers.get("authorization") || "";
+  if (!env.ADMIN_TOKEN || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
+    return json({ error: "unauthorized" }, 401);
+  }
+  const body = await request.json().catch(() => ({}));
+  const out = {};
+  if (body.generate) { await runGeneration(env, { cron: "manual" }); out.generate = "done"; }
+  if (body.social)   { out.social = (await runSocialPosting(env)) || "nothing to post"; }
+  if (!body.generate && !body.social) out.hint = 'send {"generate":true} and/or {"social":true}';
+  return json(out);
+}
 
 async function renderPredictionPage(id, env, request) {
   const all = (await env.WH_KV.get("predictions:all", "json")) ??

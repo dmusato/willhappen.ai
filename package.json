@@ -10,7 +10,7 @@
     "tail": "wrangler tail",
     "kv:seed": "wrangler kv key put --binding=WH_KV 'predictions:all' --path=public/data/predictions.json",
     "cron:local": "wrangler dev --test-scheduled",
-    "lint": "node --check src/worker.js && node --check src/handlers/vote.js && node --check src/handlers/suggest.js && node --check src/handlers/predictions.js && node --check src/handlers/og.js && node --check src/generate/generate.js"
+    "lint": "for f in src/worker.js src/handlers/*.js src/generate/*.js src/social/*.js; do node --check $f || exit 1; done"
   },
   "devDependencies": {
     "wrangler": "^3.95.0"

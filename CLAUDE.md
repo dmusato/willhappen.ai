@@ -31,6 +31,8 @@ Browser ──── request ───►│ fetch():                           
                          │   └─ *                 → ASSETS (public/)   │
                          │                                             │
                          │ scheduled("17 3 * * *"):                    │
+                         │   ├─ social autoposting (X, Reddit,         │
+                         │   │   Facebook, Instagram carousels)        │
                          │   └─ Cloudflare AI Gateway                  │
                          │        ├─ google-ai-studio/gemini-2.5-pro   │
                          │        ├─ anthropic/claude-sonnet-4-6       │
@@ -59,7 +61,7 @@ public/                         served by Workers Static Assets (env.ASSETS)
   _headers                      static asset cache policy
   robots.txt
 src/
-  worker.js                     main entry: fetch() + scheduled()
+  worker.js                     main entry: fetch() + scheduled() + /api/admin/run
   handlers/predictions.js       GET /api/predictions
   handlers/vote.js              GET|POST /api/vote  → KV
   handlers/suggest.js           POST /api/suggest   → GH Issues
@@ -67,6 +69,10 @@ src/
   generate/generate.js          nightly batch — draft + evaluate + merge
   generate/providers.js         Cloudflare AI Gateway adapter
   generate/topics.js            30 topics × 9 horizons catalog
+  social/index.js               autoposting orchestrator (KV checkpoints)
+  social/twitter.js             X — OAuth 1.0a, POST /2/tweets
+  social/reddit.js              Reddit — script app, link submit
+  social/meta.js                Facebook Page + Instagram carousels (Graph API)
 wrangler.toml                   one config for the whole project
 package.json                    wrangler devDep + scripts
 .github/ISSUE_TEMPLATE/         suggest + outcome issue templates
@@ -134,8 +140,20 @@ All predictions live under KV key `predictions:all` as
 | `predictions:all`         | full archive JSON                  | none |
 | `votes:tally:{id}`        | `{ yes, no }`                      | none |
 | `votes:by:{id}:{fp}`      | `"yes"` \| `"no"`                  | 1y |
-| `rl:{fp}`                 | `"1"` (vote rate-limit)            | 2s |
+| `rl:{id}:{fp}`            | `"1"` (vote-change rate-limit)     | 60s |
 | `rl:suggest:{ip}`         | `"1"` (suggest rate-limit)         | 60s |
+| `social:{platform}:{id}`  | `{ at, ... }` posted checkpoint    | none |
+
+## Social autoposting
+
+Runs inside `scheduled()` right after generation (`src/social/index.js`).
+Each platform activates only when its secrets exist — no code changes needed.
+Checkpoints in KV guarantee each prediction is posted at most once per
+platform; failures retry next night. Instagram posts a nightly digest
+carousel (2–10 slides, OG cards rasterized to JPEG via wsrv.nl).
+
+Manual trigger:
+`curl -X POST https://willhappen.ai/api/admin/run -H 'authorization: Bearer $ADMIN_TOKEN' -d '{"generate":true,"social":true}'`
 
 ## Deploy (one-time setup)
 

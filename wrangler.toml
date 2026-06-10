@@ -7,10 +7,10 @@ main = "src/worker.js"
 compatibility_date = "2025-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-workers_dev = false
+workers_dev = true
 routes = [
-  { pattern = "willhappen.ai/*",     custom_domain = true },
-  { pattern = "www.willhappen.ai/*", custom_domain = true },
+  { pattern = "willhappen.ai",     custom_domain = true },
+  { pattern = "www.willhappen.ai", custom_domain = true },
 ]
 
 [assets]
@@ -34,6 +34,10 @@ AI_GATEWAY_ACCOUNT_ID = "REPLACE_WITH_CF_ACCOUNT_ID"
 AI_GATEWAY_ID         = "willhappen"
 REPO                  = "dmusato/willhappen.ai"
 SITE_URL              = "https://willhappen.ai"
+# social targets (non-secret ids; leave empty to disable a platform)
+REDDIT_SUBREDDIT      = ""
+FB_PAGE_ID            = ""
+IG_USER_ID            = ""
 
 [observability]
 enabled = true
@@ -46,3 +50,8 @@ enabled = true
 #   XAI_API_KEY              - grok/* provider
 #   DEEPSEEK_API_KEY         - deepseek/* provider
 #   GH_TOKEN                 - creating suggestion issues
+#   ADMIN_TOKEN              - bearer for POST /api/admin/run
+# Social (each platform optional — skipped when its secrets are absent):
+#   TW_API_KEY / TW_API_SECRET / TW_ACCESS_TOKEN / TW_ACCESS_SECRET  - X (OAuth 1.0a)
+#   REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET / REDDIT_USERNAME / REDDIT_PASSWORD
+#   FB_PAGE_TOKEN            - long-lived Page token (also serves Instagram)
