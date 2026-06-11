@@ -1,299 +1,2125 @@
 {
-  "generated_at": "2026-04-19T00:00:00Z",
+  "generated_at": "2026-06-11T00:06:24.772Z",
   "predictions": [
     {
-      "id": "p1",
+      "id": "p001",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:00:00Z",
+      "question_generated_at": "2026-01-10T00:00:00.000Z",
       "topic": "ai",
-      "horizon": "1w",
-      "created_at": "2026-04-19",
-      "resolves_by": "2026-04-26",
-      "headline": "A major frontier lab ships a multi-agent coding product",
-      "consensus_prob": 87,
+      "horizon": "1m",
+      "created_at": "2026-01-10",
+      "resolves_by": "2026-02-09",
+      "headline": "OpenAI announces a multi-agent coding product in January",
+      "consensus_prob": 78,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",               "prob": 89, "note": "Shipping cadence + telemetry spikes",            "queried_at": "2026-04-19T03:02:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                    "prob": 84, "note": "Compute allocation suggests imminent launch",    "queried_at": "2026-04-19T03:02:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                   "prob": 90, "note": "Benchmark leaks point to release window",        "queried_at": "2026-04-19T03:02:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                    "prob": 82, "note": "Social signals trending toward reveal",          "queried_at": "2026-04-19T03:02:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",    "prob": 85, "note": "Open-source agent stacks close to parity",       "queried_at": "2026-04-19T03:02:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                         "prob": 90, "note": "Replication of agent-loop papers is converging", "queried_at": "2026-04-19T03:02:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 67,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 68,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 88,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 81,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 79,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 85,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-01-10T03:00:00.000Z"
+        }
       },
-      "verdict": null, "verdict_source": null, "verdict_note": null
+      "verdict": true,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
     },
     {
-      "id": "p2",
+      "id": "p002",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:05:00Z",
-      "topic": "climate",
-      "horizon": "1y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2027-04-19",
-      "headline": "Global temp anomaly exceeds +1.6°C versus pre-industrial",
+      "question_generated_at": "2026-01-11T00:00:00.000Z",
+      "topic": "markets",
+      "horizon": "1m",
+      "created_at": "2026-01-11",
+      "resolves_by": "2026-02-10",
+      "headline": "S&P 500 closes January above 6,200",
       "consensus_prob": 62,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",           "prob": 65, "note": "ENSO-neutral with ocean heat content high",      "queried_at": "2026-04-19T03:05:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                "prob": 58, "note": "Conditional on La Niña onset timing",            "queried_at": "2026-04-19T03:05:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                               "prob": 64, "note": "Post-El-Niño rebound path likely breached",      "queried_at": "2026-04-19T03:05:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                "prob": 60, "note": "Satellite records support upward drift",         "queried_at": "2026-04-19T03:05:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct", "prob": 61, "note": "Open climate models show narrow band above",     "queried_at": "2026-04-19T03:05:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                     "prob": 63, "note": "Ensemble mean from CMIP7 draft runs",            "queried_at": "2026-04-19T03:05:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 51,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 52,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 72,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 65,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 63,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 69,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-01-11T03:00:00.000Z"
+        }
       },
-      "verdict": null, "verdict_source": null, "verdict_note": null
+      "verdict": true,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
     },
     {
-      "id": "p3",
+      "id": "p003",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:08:00Z",
-      "topic": "space",
-      "horizon": "5y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2031-04-19",
-      "headline": "First crewed lunar landing since Apollo 17",
-      "consensus_prob": 41,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 38, "note": "Artemis timeline continues to slip",        "queried_at": "2026-04-19T03:08:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 45, "note": "Starship HLS cadence improving",           "queried_at": "2026-04-19T03:08:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "Hardware ready, integration risk remains", "queried_at": "2026-04-19T03:08:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 48, "note": "Private lunar ventures add a pathway",     "queried_at": "2026-04-19T03:08:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 42, "note": "Ops readiness lags hardware by ~18 months","queried_at": "2026-04-19T03:08:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 34, "note": "Heritage schedule risk dominates",          "queried_at": "2026-04-19T03:08:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p4",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:11:00Z",
-      "topic": "markets",
-      "horizon": "3y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2029-04-19",
-      "headline": "The S&P 500 closes above 8,000 at least once",
-      "consensus_prob": 73,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 74, "note": "Earnings growth + AI capex cycle",      "queried_at": "2026-04-19T03:11:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 70, "note": "Valuation compression a real risk",     "queried_at": "2026-04-19T03:11:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 76, "note": "Nominal path is trending",              "queried_at": "2026-04-19T03:11:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 78, "note": "Retail flows remain structural",        "queried_at": "2026-04-19T03:11:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 72, "note": "Fair-value nominal path supports it",    "queried_at": "2026-04-19T03:11:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 67, "note": "Terminal rate uncertainty widens fan",  "queried_at": "2026-04-19T03:11:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p5",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:14:00Z",
-      "topic": "ai",
-      "horizon": "10y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2036-04-19",
-      "headline": "An AI system wins a recognized Nobel Prize outright",
-      "consensus_prob": 28,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 22, "note": "Attribution conventions remain human-centric", "queried_at": "2026-04-19T03:14:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 32, "note": "Joint-award pathway increasingly plausible",    "queried_at": "2026-04-19T03:14:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 30, "note": "Chemistry or Medicine most likely vector",       "queried_at": "2026-04-19T03:14:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 38, "note": "Committee norms evolving fast",                  "queried_at": "2026-04-19T03:14:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 26, "note": "Human-in-the-loop caveats dominate",              "queried_at": "2026-04-19T03:14:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 18, "note": "Governance lag dominates",                        "queried_at": "2026-04-19T03:14:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p6",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:17:00Z",
-      "topic": "geo",
-      "horizon": "1m",
-      "created_at": "2026-04-19",
-      "resolves_by": "2026-05-19",
-      "headline": "A new trade bloc forms in Southeast Asia",
-      "consensus_prob": 54,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 55, "note": "Ministerial track aligned",               "queried_at": "2026-04-19T03:17:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Ratification risk non-trivial",          "queried_at": "2026-04-19T03:17:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 58, "note": "Diplomatic signals are unusually warm",  "queried_at": "2026-04-19T03:17:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 60, "note": "Back-channel activity is elevated",      "queried_at": "2026-04-19T03:17:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 52, "note": "Regional framework has momentum",         "queried_at": "2026-04-19T03:17:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 49, "note": "Domestic politics could delay",           "queried_at": "2026-04-19T03:17:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p7",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:20:00Z",
-      "topic": "health",
-      "horizon": "6m",
-      "created_at": "2026-04-19",
-      "resolves_by": "2026-10-19",
-      "headline": "First CRISPR therapy approved for a common genetic disease",
-      "consensus_prob": 81,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 82, "note": "Phase III data was strong",        "queried_at": "2026-04-19T03:20:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 78, "note": "FDA calendar supports it",         "queried_at": "2026-04-19T03:20:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 85, "note": "Manufacturing cleared",            "queried_at": "2026-04-19T03:20:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 80, "note": "Advisory committee backing",       "queried_at": "2026-04-19T03:20:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 83, "note": "Label expansion path is clean",     "queried_at": "2026-04-19T03:20:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 79, "note": "Pricing negotiations near close",   "queried_at": "2026-04-19T03:20:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p8",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:23:00Z",
-      "topic": "energy",
-      "horizon": "1y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2027-04-19",
-      "headline": "Solar + storage cheaper than any fossil baseline in 10 more countries",
-      "consensus_prob": 69,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 72, "note": "LCOE curves hold trajectory",              "queried_at": "2026-04-19T03:23:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 65, "note": "Interest rates slow buildout",             "queried_at": "2026-04-19T03:23:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 70, "note": "Panel oversupply persists",                "queried_at": "2026-04-19T03:23:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 74, "note": "China export wedge still widening",        "queried_at": "2026-04-19T03:23:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 69, "note": "Storage economics still improving",        "queried_at": "2026-04-19T03:23:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 66, "note": "Grid interconnect lead times bite",        "queried_at": "2026-04-19T03:23:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p9",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:26:00Z",
+      "question_generated_at": "2026-01-12T00:00:00.000Z",
       "topic": "crypto",
-      "horizon": "3y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2029-04-19",
-      "headline": "A G7 nation adopts Bitcoin as a reserve asset",
-      "consensus_prob": 34,
-      "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 28, "note": "Central bank resistance remains",    "queried_at": "2026-04-19T03:26:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 36, "note": "Political pressure building",         "queried_at": "2026-04-19T03:26:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "One cycle from plausible",            "queried_at": "2026-04-19T03:26:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 52, "note": "Sovereign adoption wave is here",     "queried_at": "2026-04-19T03:26:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 32, "note": "Reserve diversification trend helps",  "queried_at": "2026-04-19T03:26:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 16, "note": "Institutional inertia dominates",     "queried_at": "2026-04-19T03:26:20Z" }
-      },
-      "verdict": null, "verdict_source": null, "verdict_note": null
-    },
-    {
-      "id": "p10",
-      "source": "seed",
-      "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:29:00Z",
-      "topic": "tech",
-      "horizon": "5y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2031-04-19",
-      "headline": "AR glasses outsell smartphones in at least one quarter",
+      "horizon": "1m",
+      "created_at": "2026-01-12",
+      "resolves_by": "2026-02-11",
+      "headline": "Bitcoin closes January above $110k",
       "consensus_prob": 58,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 54, "note": "Form factor breakthroughs needed",   "queried_at": "2026-04-19T03:29:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 62, "note": "Meta + Apple roadmaps converge",     "queried_at": "2026-04-19T03:29:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 60, "note": "Developer platform maturing",        "queried_at": "2026-04-19T03:29:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 70, "note": "Replacement cycle is aligning",      "queried_at": "2026-04-19T03:29:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 56, "note": "Open display stacks advancing",      "queried_at": "2026-04-19T03:29:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 48, "note": "Smartphone lock-in is sticky",       "queried_at": "2026-04-19T03:29:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 47,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 48,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 68,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 61,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 59,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 65,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-01-12T03:00:00.000Z"
+        }
       },
-      "verdict": null, "verdict_source": null, "verdict_note": null
+      "verdict": false,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
     },
     {
-      "id": "p11",
+      "id": "p004",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-02-19T12:00:00Z",
+      "question_generated_at": "2026-01-13T00:00:00.000Z",
+      "topic": "geo",
+      "horizon": "6m",
+      "created_at": "2026-01-13",
+      "resolves_by": "2026-07-12",
+      "headline": "A formal Russia–Ukraine ceasefire is signed in the first half of 2026",
+      "consensus_prob": 24,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 13,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 14,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 34,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 27,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 25,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 31,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-01-13T03:00:00.000Z"
+        }
+      },
+      "verdict": false,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
+    },
+    {
+      "id": "p005",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-01-14T00:00:00.000Z",
+      "topic": "space",
+      "horizon": "1y",
+      "created_at": "2026-01-14",
+      "resolves_by": "2027-01-14",
+      "headline": "SpaceX completes a fully reusable Starship orbital flight in 2026",
+      "consensus_prob": 66,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 55,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 56,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 76,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 69,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 67,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 73,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-01-14T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p006",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-15T00:00:00.000Z",
+      "topic": "ai",
+      "horizon": "1m",
+      "created_at": "2026-02-15",
+      "resolves_by": "2026-03-17",
+      "headline": "Anthropic ships Claude 4.7 in February",
+      "consensus_prob": 71,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 60,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 61,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 81,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 74,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 72,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 78,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-02-15T03:00:00.000Z"
+        }
+      },
+      "verdict": true,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
+    },
+    {
+      "id": "p007",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-16T00:00:00.000Z",
+      "topic": "climate",
+      "horizon": "1m",
+      "created_at": "2026-02-16",
+      "resolves_by": "2026-03-18",
+      "headline": "February 2026 sets a new global temperature record",
+      "consensus_prob": 54,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 43,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 44,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 64,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 57,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 55,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 61,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-02-16T03:00:00.000Z"
+        }
+      },
+      "verdict": false,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
+    },
+    {
+      "id": "p008",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-17T00:00:00.000Z",
+      "topic": "health",
+      "horizon": "6m",
+      "created_at": "2026-02-17",
+      "resolves_by": "2026-08-16",
+      "headline": "FDA approves the first CRISPR therapy for sickle cell at home delivery",
+      "consensus_prob": 38,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 27,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 28,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 48,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 41,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 39,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 45,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-02-17T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p009",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-18T00:00:00.000Z",
+      "topic": "tech",
+      "horizon": "1y",
+      "created_at": "2026-02-18",
+      "resolves_by": "2027-02-18",
+      "headline": "Apple announces an AR/VR consumer headset under $1,500",
+      "consensus_prob": 45,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 34,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 35,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 55,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 48,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 46,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 52,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-02-18T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p010",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-02-19T00:00:00.000Z",
       "topic": "culture",
       "horizon": "1m",
       "created_at": "2026-02-19",
-      "resolves_by": "2026-03-19",
-      "headline": "A non-English-language film dominates the global box office",
-      "consensus_prob": 92,
+      "resolves_by": "2026-03-21",
+      "headline": "A non-English-language film tops the global box office in February",
+      "consensus_prob": 62,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 94, "note": "Festival momentum is massive",            "queried_at": "2026-02-19T12:00:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 90, "note": "Distribution is locked in",               "queried_at": "2026-02-19T12:00:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 93, "note": "Streaming overlap helps",                 "queried_at": "2026-02-19T12:00:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 95, "note": "Word of mouth already huge",              "queried_at": "2026-02-19T12:00:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 91, "note": "Global demand signal is unambiguous",     "queried_at": "2026-02-19T12:00:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 88, "note": "Release slot is favorable",               "queried_at": "2026-02-19T12:00:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 51,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 52,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 72,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 65,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 63,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 69,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-02-19T03:00:00.000Z"
+        }
       },
-      "verdict": true, "verdict_source": "maintainer", "verdict_note": "Confirmed by box-office data, 2026-03-19"
+      "verdict": true,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
     },
     {
-      "id": "p12",
+      "id": "p011",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-02-19T12:30:00Z",
+      "question_generated_at": "2026-03-20T00:00:00.000Z",
+      "topic": "ai",
+      "horizon": "3y",
+      "created_at": "2026-03-20",
+      "resolves_by": "2029-03-19",
+      "headline": "An AI agent autonomously contributes a merged PR to the Linux kernel by 2029",
+      "consensus_prob": 47,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 36,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 37,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 57,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 50,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 48,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 54,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-03-20T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p012",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-03-21T00:00:00.000Z",
+      "topic": "markets",
+      "horizon": "3y",
+      "created_at": "2026-03-21",
+      "resolves_by": "2029-03-20",
+      "headline": "S&P 500 closes above 8,000 at least once before April 2029",
+      "consensus_prob": 71,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 60,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 61,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 81,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 74,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 72,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 78,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-03-21T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p013",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-03-22T00:00:00.000Z",
+      "topic": "energy",
+      "horizon": "1y",
+      "created_at": "2026-03-22",
+      "resolves_by": "2027-03-22",
+      "headline": "Solar + storage beats fossil baseline in 10 more countries in 2026",
+      "consensus_prob": 69,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 58,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 59,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 79,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 72,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 70,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 76,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-03-22T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p014",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-03-23T00:00:00.000Z",
+      "topic": "robotics",
+      "horizon": "5y",
+      "created_at": "2026-03-23",
+      "resolves_by": "2031-03-22",
+      "headline": "A humanoid robot is sold to consumers under $20k by 2031",
+      "consensus_prob": 41,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 30,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 31,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 51,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 44,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 42,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 48,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-03-23T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p015",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-03-24T00:00:00.000Z",
+      "topic": "geo",
+      "horizon": "1y",
+      "created_at": "2026-03-24",
+      "resolves_by": "2027-03-24",
+      "headline": "A new Asia-Pacific trade bloc launches in 2026",
+      "consensus_prob": 48,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 37,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 38,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 58,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 51,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 49,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 55,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-03-24T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p016",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-25T00:00:00.000Z",
       "topic": "ai",
       "horizon": "1m",
-      "created_at": "2026-02-19",
-      "resolves_by": "2026-03-19",
-      "headline": "OpenAI and Anthropic announce a joint safety framework",
-      "consensus_prob": 44,
+      "created_at": "2026-04-25",
+      "resolves_by": "2026-05-25",
+      "headline": "GPT-5 is released to general availability in April",
+      "consensus_prob": 82,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 42, "note": "Governance gap closing but slowly",        "queried_at": "2026-02-19T12:30:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Behind-the-scenes work exists",            "queried_at": "2026-02-19T12:30:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 40, "note": "Competitive pressures cut both ways",      "queried_at": "2026-02-19T12:30:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 55, "note": "Regulatory nudge incoming",                "queried_at": "2026-02-19T12:30:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 44, "note": "Open-source coalition not part of deal",   "queried_at": "2026-02-19T12:30:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 35, "note": "Public stance still divergent",            "queried_at": "2026-02-19T12:30:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 71,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 72,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 92,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 85,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 83,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 89,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-25T03:00:00.000Z"
+        }
       },
-      "verdict": false, "verdict_source": "maintainer", "verdict_note": "No joint announcement by 2026-03-19"
+      "verdict": true,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
     },
     {
-      "id": "p13",
+      "id": "p017",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:32:00Z",
+      "question_generated_at": "2026-04-26T00:00:00.000Z",
+      "topic": "crypto",
+      "horizon": "1y",
+      "created_at": "2026-04-26",
+      "resolves_by": "2027-04-26",
+      "headline": "A G7 nation adopts Bitcoin as a strategic reserve asset in 2026",
+      "consensus_prob": 18,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 7,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 8,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 28,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 21,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 19,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 25,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-26T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p018",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-27T00:00:00.000Z",
       "topic": "space",
-      "horizon": "50y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2076-04-19",
-      "headline": "A permanent, self-sustaining human settlement on Mars",
+      "horizon": "5y",
+      "created_at": "2026-04-27",
+      "resolves_by": "2031-04-26",
+      "headline": "First crewed lunar landing since Apollo 17 happens before April 2031",
+      "consensus_prob": 41,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 30,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 31,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 51,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 44,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 42,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 48,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-27T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p019",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-10T00:00:00.000Z",
+      "topic": "biotech",
+      "horizon": "10y",
+      "created_at": "2026-04-10",
+      "resolves_by": "2036-04-07",
+      "headline": "A drug approved before 2036 extends median human lifespan by 5+ years",
+      "consensus_prob": 27,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 16,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 17,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 37,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 30,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 28,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 34,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-10T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p020",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-11T00:00:00.000Z",
+      "topic": "labor",
+      "horizon": "3y",
+      "created_at": "2026-04-11",
+      "resolves_by": "2029-04-10",
+      "headline": "Remote work share in OECD economies drops below 18% by 2029",
+      "consensus_prob": 52,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 41,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 42,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 62,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 55,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 53,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 59,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-11T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p021",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-04-12T00:00:00.000Z",
+      "topic": "demo",
+      "horizon": "5y",
+      "created_at": "2026-04-12",
+      "resolves_by": "2031-04-11",
+      "headline": "China's total population falls below 1.35B before 2031",
+      "consensus_prob": 74,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 63,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 64,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 84,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 77,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 75,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 81,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-04-12T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p022",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-05-13T00:00:00.000Z",
+      "topic": "tech",
+      "horizon": "5y",
+      "created_at": "2026-05-13",
+      "resolves_by": "2031-05-12",
+      "headline": "AR glasses outsell smartphones in at least one quarter by 2031",
+      "consensus_prob": 58,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 47,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 48,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 68,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 61,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 59,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 65,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-13T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p023",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-05-14T00:00:00.000Z",
+      "topic": "ai",
+      "horizon": "5y",
+      "created_at": "2026-05-14",
+      "resolves_by": "2031-05-13",
+      "headline": "A peer-reviewed paper claims AGI threshold met before May 2031",
+      "consensus_prob": 34,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 23,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 24,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 44,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 37,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 35,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 41,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-14T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p024",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-05-15T00:00:00.000Z",
+      "topic": "climate",
+      "horizon": "1y",
+      "created_at": "2026-05-15",
+      "resolves_by": "2027-05-15",
+      "headline": "2026 ends as the hottest year on record",
       "consensus_prob": 67,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 62, "note": "Propulsion + closed-loop life support converging", "queried_at": "2026-04-19T03:32:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 70, "note": "Private industry bends the curve",                  "queried_at": "2026-04-19T03:32:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 65, "note": "Self-sustaining is a high bar",                     "queried_at": "2026-04-19T03:32:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 82, "note": "Musk timeline extrapolated",                        "queried_at": "2026-04-19T03:32:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 66, "note": "Mid-century if funding holds",                      "queried_at": "2026-04-19T03:32:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 56, "note": "Radiation + biology risk elevated",                 "queried_at": "2026-04-19T03:32:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 56,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 57,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 77,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 70,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 68,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 74,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-15T03:00:00.000Z"
+        }
       },
-      "verdict": null, "verdict_source": null, "verdict_note": null
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
     },
     {
-      "id": "p14",
+      "id": "p025",
       "source": "seed",
       "question_generated_by": "anthropic/claude-sonnet-4-6",
-      "question_generated_at": "2026-04-19T03:35:00Z",
+      "question_generated_at": "2026-05-16T00:00:00.000Z",
+      "topic": "policy",
+      "horizon": "1y",
+      "created_at": "2026-05-16",
+      "resolves_by": "2027-05-16",
+      "headline": "The EU AI Act enforcement phase 2 triggers a major model ban in 2026",
+      "consensus_prob": 22,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 11,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 12,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 32,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 25,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 23,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 29,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-16T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p026",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-05-17T00:00:00.000Z",
+      "topic": "sports",
+      "horizon": "1m",
+      "created_at": "2026-05-17",
+      "resolves_by": "2026-06-16",
+      "headline": "A 17-year-old wins a Grand Slam tennis title in May",
+      "consensus_prob": 12,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 2,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 2,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 22,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 15,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 13,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 19,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-17T03:00:00.000Z"
+        }
+      },
+      "verdict": false,
+      "verdict_source": "maintainer",
+      "verdict_note": "Backfill — historical record."
+    },
+    {
+      "id": "p027",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-05-18T00:00:00.000Z",
+      "topic": "gaming",
+      "horizon": "3y",
+      "created_at": "2026-05-18",
+      "resolves_by": "2029-05-17",
+      "headline": "A AAA studio releases a fully AI-generated open-world game by 2029",
+      "consensus_prob": 39,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 28,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 29,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 49,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 42,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 40,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 46,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-05-18T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p028",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-19T00:00:00.000Z",
+      "topic": "ai",
+      "horizon": "1m",
+      "created_at": "2026-06-19",
+      "resolves_by": "2026-07-19",
+      "headline": "Google releases Gemini 3 with native agent runtime in June",
+      "consensus_prob": 74,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 63,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 64,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 84,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 77,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 75,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 81,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-19T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p029",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-20T00:00:00.000Z",
+      "topic": "markets",
+      "horizon": "1m",
+      "created_at": "2026-06-20",
+      "resolves_by": "2026-07-20",
+      "headline": "Fed cuts rates by 25bps in June",
+      "consensus_prob": 48,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 37,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 38,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 58,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 51,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 49,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 55,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-20T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p030",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-21T00:00:00.000Z",
+      "topic": "climate",
+      "horizon": "1m",
+      "created_at": "2026-06-21",
+      "resolves_by": "2026-07-21",
+      "headline": "A category-5 hurricane forms in the Atlantic before July",
+      "consensus_prob": 31,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 20,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 21,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 41,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 34,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 32,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 38,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-21T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p031",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-22T00:00:00.000Z",
+      "topic": "health",
+      "horizon": "1m",
+      "created_at": "2026-06-22",
+      "resolves_by": "2026-07-22",
+      "headline": "WHO declares a new pandemic-tier health emergency in June",
+      "consensus_prob": 9,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 2,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 2,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 17,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 10,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 8,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 14,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-22T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p032",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-23T00:00:00.000Z",
+      "topic": "culture",
+      "horizon": "6m",
+      "created_at": "2026-06-23",
+      "resolves_by": "2026-12-20",
+      "headline": "A film made entirely by AI grosses $100M+ globally before 2027",
+      "consensus_prob": 29,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 18,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 19,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 39,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 32,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 30,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 36,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-23T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p033",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-24T00:00:00.000Z",
+      "topic": "longevity",
+      "horizon": "10y",
+      "created_at": "2026-06-24",
+      "resolves_by": "2036-06-21",
+      "headline": "An FDA-approved drug labeled to 'treat aging' exists by 2036",
+      "consensus_prob": 36,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 25,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 26,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 46,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 39,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 37,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 43,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-24T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p034",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-25T00:00:00.000Z",
+      "topic": "oceans",
+      "horizon": "10y",
+      "created_at": "2026-06-25",
+      "resolves_by": "2036-06-22",
+      "headline": "Arctic Ocean has its first ice-free September before 2036",
+      "consensus_prob": 73,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 62,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 63,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 83,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 76,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 74,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 80,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-25T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p035",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-26T00:00:00.000Z",
+      "topic": "space",
+      "horizon": "50y",
+      "created_at": "2026-06-26",
+      "resolves_by": "2076-06-13",
+      "headline": "A permanent, self-sustaining human settlement on Mars by 2076",
+      "consensus_prob": 41,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 30,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 31,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 51,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 44,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 42,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 48,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-26T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p036",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-27T00:00:00.000Z",
       "topic": "climate",
       "horizon": "100y",
-      "created_at": "2026-04-19",
-      "resolves_by": "2126-04-19",
-      "headline": "Net global CO₂ emissions reach zero and stay there",
-      "consensus_prob": 51,
+      "created_at": "2026-06-27",
+      "resolves_by": "2126-06-03",
+      "headline": "Net global CO₂ emissions reach zero and stay there before 2126",
+      "consensus_prob": 49,
       "models": {
-        "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",            "prob": 55, "note": "Policy trajectory bends by mid-century", "queried_at": "2026-04-19T03:35:10Z" },
-        "claude":   { "provider": "anthropic/claude-sonnet-4-6",                 "prob": 48, "note": "Residual emissions persist",             "queried_at": "2026-04-19T03:35:12Z" },
-        "gpt":      { "provider": "openai/gpt-5",                                "prob": 52, "note": "Carbon removal scales",                  "queried_at": "2026-04-19T03:35:14Z" },
-        "grok":     { "provider": "grok/grok-4",                                 "prob": 60, "note": "Tech optimism case",                     "queried_at": "2026-04-19T03:35:16Z" },
-        "llama":    { "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",  "prob": 50, "note": "Depends on DAC cost curve holding",      "queried_at": "2026-04-19T03:35:18Z" },
-        "deepseek": { "provider": "deepseek/deepseek-chat",                      "prob": 40, "note": "Historical track record cautions",       "queried_at": "2026-04-19T03:35:20Z" }
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 38,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 39,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 59,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 52,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 50,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 56,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-27T03:00:00.000Z"
+        }
       },
-      "verdict": null, "verdict_source": null, "verdict_note": null
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p037",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-10T00:00:00.000Z",
+      "topic": "biotech",
+      "horizon": "100y",
+      "created_at": "2026-06-10",
+      "resolves_by": "2126-05-17",
+      "headline": "Average global life expectancy exceeds 100 years by 2126",
+      "consensus_prob": 28,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 17,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 18,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 38,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 31,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 29,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 35,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-10T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p038",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-11T00:00:00.000Z",
+      "topic": "ai",
+      "horizon": "100y",
+      "created_at": "2026-06-11",
+      "resolves_by": "2126-05-18",
+      "headline": "A non-human entity holds elected political office before 2126",
+      "consensus_prob": 14,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 3,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 4,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 24,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 17,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 15,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 21,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-11T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p039",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-12T00:00:00.000Z",
+      "topic": "energy",
+      "horizon": "50y",
+      "created_at": "2026-06-12",
+      "resolves_by": "2076-05-30",
+      "headline": "Fusion provides 5%+ of global electricity by 2076",
+      "consensus_prob": 44,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 33,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 34,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 54,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 47,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 45,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 51,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-12T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
+    },
+    {
+      "id": "p040",
+      "source": "seed",
+      "question_generated_by": "anthropic/claude-sonnet-4-6",
+      "question_generated_at": "2026-06-13T00:00:00.000Z",
+      "topic": "demo",
+      "horizon": "100y",
+      "created_at": "2026-06-13",
+      "resolves_by": "2126-05-20",
+      "headline": "World population peaks and falls below 8B before 2126",
+      "consensus_prob": 62,
+      "models": {
+        "gemini": {
+          "provider": "google-ai-studio/gemini-2.5-pro",
+          "prob": 51,
+          "note": "Backfill seed · gemini prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        },
+        "claude": {
+          "provider": "anthropic/claude-sonnet-4-6",
+          "prob": 52,
+          "note": "Backfill seed · claude prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        },
+        "gpt": {
+          "provider": "openai/gpt-5",
+          "prob": 72,
+          "note": "Backfill seed · gpt prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        },
+        "grok": {
+          "provider": "grok/grok-4",
+          "prob": 65,
+          "note": "Backfill seed · grok prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        },
+        "llama": {
+          "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+          "prob": 63,
+          "note": "Backfill seed · llama prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        },
+        "deepseek": {
+          "provider": "deepseek/deepseek-chat",
+          "prob": 69,
+          "note": "Backfill seed · deepseek prior",
+          "queried_at": "2026-06-13T03:00:00.000Z"
+        }
+      },
+      "verdict": null,
+      "verdict_source": null,
+      "verdict_note": null
     }
   ]
 }

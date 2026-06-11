@@ -177,12 +177,22 @@ route (see `wrangler.toml [routes]`).
 
 | Command | Effect |
 |---|---|
-| `npm run dev` | `wrangler dev` — local worker + static assets |
+| `npm run dev` | local worker + static assets, scheduled() exposed at `/__scheduled` |
+| `npm run dev:fresh` | same but wipes local KV first |
+| `npm run cron:trigger` | hit `/__scheduled?cron=...` on the running local worker |
+| `npm run backfill` | regenerate `public/data/predictions.json` from `scripts/backfill.mjs` |
 | `npm run deploy` | `wrangler deploy` |
-| `npm run tail` | live logs |
-| `npm run cron:local` | trigger `scheduled()` once locally |
-| `npm run kv:seed` | one-off: load `public/data/predictions.json` into KV |
+| `npm run tail` | live logs from production worker |
+| `npm run kv:seed` | one-off: load `public/data/predictions.json` into prod KV |
 | `npm run lint` | node --check every JS file |
+
+### Local end-to-end test without keys
+
+Set `MOCK_LLM=1` in `.dev.vars` (gitignored). `src/generate/providers.js`
+short-circuits to a deterministic synthetic response in mock mode, so the
+full cron cycle (draft → 6-model evaluation → consensus → KV write →
+social orchestrator) runs without any provider keys. Drop `MOCK_LLM`
+from `.dev.vars` once real keys are set to call the live AI Gateway.
 
 ## Common tasks
 

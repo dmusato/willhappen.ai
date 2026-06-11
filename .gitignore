@@ -13,3 +13,4 @@ build/
 .idea/
 .vscode/
 *.log
+.dev.vars

@@ -24,6 +24,12 @@ export function gatewayUrl(env) {
 }
 
 export async function callModel(env, model, messages, { temperature = 0.7, maxTokens = 500, responseJson = false } = {}) {
+  // Local-dev / test mode — deterministic synthetic responses so the whole
+  // pipeline runs without external API keys.
+  if (env.MOCK_LLM === "1" || env.MOCK_LLM === "true") {
+    return { content: mockResponse(model, messages, responseJson) };
+  }
+
   // Workers AI goes through the AI binding — no external auth.
   if (model.provider === "workers-ai") {
     const opts = { messages, temperature, max_tokens: maxTokens };
@@ -54,4 +60,23 @@ export async function callModel(env, model, messages, { temperature = 0.7, maxTo
   const data = await res.json();
   const content = data?.choices?.[0]?.message?.content ?? "";
   return { content };
+}
+
+function mockResponse(model, messages, responseJson) {
+  const userMsg = messages.find((m) => m.role === "user")?.content || "";
+  if (!responseJson) {
+    return `By 2030, ${userMsg.toLowerCase().slice(0, 80)} will reshape ${model.key === "claude" ? "expectations" : "the landscape"}.`;
+  }
+  // Deterministic-ish probability seeded by model key + headline length.
+  const seed = (userMsg.length * 7 + model.key.charCodeAt(0)) % 100;
+  const prob = Math.max(8, Math.min(92, 30 + seed % 65));
+  const notes = {
+    gemini:   "Signals + trendlines support it",
+    claude:   "Plausible but execution risk remains",
+    gpt:      "Base rates + leading indicators align",
+    grok:     "Tail risks underpriced by consensus",
+    llama:    "Open-source data favors the bet",
+    deepseek: "Macro conditions tilt this way",
+  };
+  return JSON.stringify({ prob, note: notes[model.key] || "Mixed evidence." });
 }
