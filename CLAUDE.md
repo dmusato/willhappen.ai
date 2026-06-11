@@ -101,7 +101,13 @@ mouse-parallax (disabled on mobile and `prefers-reduced-motion`).
 Glass card: `background: rgba(255,255,255,.05)` + `backdrop-filter: blur(20px)
 saturate(160%)` + 0.5px hairline + inset top highlight.
 
-## Data shape — prediction record
+## Data shape
+
+One file per prediction. The repo holds the seed under
+`public/data/predictions/{id}.json`; live state in KV mirrors the same
+layout (`prediction:{id}` per record + a compact `predictions:index`).
+
+Full record (`prediction:{id}` / `public/data/predictions/p001.json`):
 
 ```json
 {
@@ -130,14 +136,25 @@ saturate(160%)` + 0.5px hairline + inset top highlight.
 }
 ```
 
-All predictions live under KV key `predictions:all` as
-`{ generated_at, predictions: [...] }`.
+Index entry (`predictions:index.predictions[]` / `public/data/index.json`):
+
+```json
+{ "id": "p001", "headline": "...", "topic": "ai", "horizon": "5y",
+  "created_at": "2026-04-19", "resolves_by": "2031-04-19",
+  "consensus_prob": 41, "verdict": null,
+  "question_generated_at": "2026-04-19T03:12:00Z" }
+```
+
+Listing endpoints (`/api/predictions`, timeline, recent feed) serve the
+index — ~10 KB for 40 entries. Detail pages and the OG image fetch a
+single record (~1.2 KB).
 
 ## KV keyspace
 
 | Key                       | Value                              | TTL |
 |---------------------------|------------------------------------|-----|
-| `predictions:all`         | full archive JSON                  | none |
+| `prediction:{id}`         | full record JSON                   | none |
+| `predictions:index`       | compact listing, sorted newest-first | none |
 | `votes:tally:{id}`        | `{ yes, no }`                      | none |
 | `votes:by:{id}:{fp}`      | `"yes"` \| `"no"`                  | 1y |
 | `rl:{id}:{fp}`            | `"1"` (vote-change rate-limit)     | 60s |
@@ -197,7 +214,15 @@ from `.dev.vars` once real keys are set to call the live AI Gateway.
 ## Common tasks
 
 ### Mark an outcome resolved
-Edit `public/data/predictions.json` and `wrangler kv key put --binding=WH_KV 'predictions:all' --path=public/data/predictions.json`, or wait for the next scheduled run to preserve your manual edit by re-reading KV first.
+Edit `public/data/predictions/{id}.json` — set `verdict`, `verdict_source`,
+`verdict_note` — then push and update KV:
+```bash
+wrangler kv key put --binding=WH_KV "prediction:{id}" --path=public/data/predictions/{id}.json
+# and refresh the index so it shows the ✓ / ✗ chip:
+wrangler kv key delete --binding=WH_KV "predictions:index"
+# next /api/predictions request re-seeds the index from public/data/index.json
+# (run `npm run backfill` first if you want the index to reflect the new verdict)
+```
 
 ### Add a topic
 Edit `src/generate/topics.js` + `public/data/subjects.json`.

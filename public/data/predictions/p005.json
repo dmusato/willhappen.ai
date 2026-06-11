@@ -1,0 +1,53 @@
+{
+  "id": "p005",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-01-14T00:00:00.000Z",
+  "topic": "space",
+  "horizon": "1y",
+  "created_at": "2026-01-14",
+  "resolves_by": "2027-01-14",
+  "headline": "SpaceX completes a fully reusable Starship orbital flight in 2026",
+  "consensus_prob": 66,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 55,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 56,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 76,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 69,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 67,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 73,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-01-14T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}

@@ -8,7 +8,7 @@
 
 import { handleVote } from "./handlers/vote.js";
 import { handleSuggest } from "./handlers/suggest.js";
-import { handlePredictions } from "./handlers/predictions.js";
+import { handlePredictions, loadPrediction } from "./handlers/predictions.js";
 import { handleOg } from "./handlers/og.js";
 import { runGeneration } from "./generate/generate.js";
 import { runSocialPosting } from "./social/index.js";
@@ -43,7 +43,8 @@ export default {
     if (request.method === "OPTIONS") return corsPreflight();
 
     try {
-      if (p === "/api/predictions")          return await handlePredictions(request, env, ctx);
+      if (p === "/api/predictions" || p.startsWith("/api/predictions/"))
+                                             return await handlePredictions(request, env, ctx);
       if (p === "/api/vote")                 return await handleVote(request, env, ctx);
       if (p === "/api/suggest")              return await handleSuggest(request, env, ctx);
       if (p.startsWith("/og/"))              return await handleOg(request, env, ctx);
@@ -52,14 +53,6 @@ export default {
     } catch (err) {
       console.error("handler error", err);
       return json({ error: String(err?.message || err) }, 500);
-    }
-
-    // Intercept the seed file so the same URL can be upgraded to live KV data
-    // without changing the client.
-    if (p === "/data/predictions.json") {
-      const live = await env.WH_KV.get("predictions:all", "json");
-      if (live) return json(live);
-      // fall through to static asset (the committed seed)
     }
 
     // pre-rendered per-prediction page with OG tags
@@ -97,9 +90,7 @@ async function handleAdminRun(request, env) {
 }
 
 async function renderPredictionPage(id, env, request) {
-  const all = (await env.WH_KV.get("predictions:all", "json")) ??
-              (await (await env.ASSETS.fetch(new URL("/data/predictions.json", request.url))).json());
-  const p = (all?.predictions || []).find((x) => x.id === id);
+  const p = await loadPrediction(env, request, id);
 
   const title = p ? `${p.headline} — WillHappen.ai` : "Prediction — WillHappen.ai";
   const desc  = p

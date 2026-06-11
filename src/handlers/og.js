@@ -1,13 +1,13 @@
 // GET /og/:id  →  SVG image (1200×630) with the prediction's headline and
 // consensus percentage. Cheap, cacheable, no external deps.
 
+import { loadPrediction } from "./predictions.js";
+
 export async function handleOg(request, env) {
   const url = new URL(request.url);
   const id = url.pathname.split("/").pop();
 
-  const all = (await env.WH_KV.get("predictions:all", "json")) ??
-              (await (await env.ASSETS.fetch(new URL("/data/predictions.json", request.url))).json());
-  const p = (all?.predictions || []).find((x) => x.id === id);
+  const p = await loadPrediction(env, request, id);
   if (!p) return new Response("not found", { status: 404 });
 
   const prob = Math.max(0, Math.min(100, p.consensus_prob | 0));

@@ -1,0 +1,53 @@
+{
+  "id": "p003",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-01-12T00:00:00.000Z",
+  "topic": "crypto",
+  "horizon": "1m",
+  "created_at": "2026-01-12",
+  "resolves_by": "2026-02-11",
+  "headline": "Bitcoin closes January above $110k",
+  "consensus_prob": 58,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 47,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 48,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 68,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 61,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 59,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 65,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-01-12T03:00:00.000Z"
+    }
+  },
+  "verdict": false,
+  "verdict_source": "maintainer",
+  "verdict_note": "Backfill — historical record."
+}

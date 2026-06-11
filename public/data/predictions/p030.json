@@ -1,0 +1,53 @@
+{
+  "id": "p030",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-06-21T00:00:00.000Z",
+  "topic": "climate",
+  "horizon": "1m",
+  "created_at": "2026-06-21",
+  "resolves_by": "2026-07-21",
+  "headline": "A category-5 hurricane forms in the Atlantic before July",
+  "consensus_prob": 31,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 20,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 21,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 41,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 34,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 32,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 38,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-06-21T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}

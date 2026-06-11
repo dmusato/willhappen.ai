@@ -11,8 +11,8 @@ const STALE_DAYS = 7;          // refresh predictions older than this
 export async function runGeneration(env, { cron } = {}) {
   console.log(`[gen] starting ${cron || "manual"} run at ${new Date().toISOString()}`);
 
-  const archive = (await env.WH_KV.get("predictions:all", "json")) || { predictions: [] };
-  const existing = archive.predictions || [];
+  const indexDoc = (await env.WH_KV.get("predictions:index", "json")) || { predictions: [] };
+  const existing = indexDoc.predictions || [];
 
   const candidates = pickSlots(existing, BATCH_PER_RUN);
   console.log(`[gen] slots:`, candidates.map((s) => `${s.topic.id}/${s.horizon.id}`).join(", "));
@@ -20,10 +20,10 @@ export async function runGeneration(env, { cron } = {}) {
   const newEntries = [];
   for (const slot of candidates) {
     try {
-      const entry = await generateOne(env, slot);
+      const entry = await generateOne(env, slot, existing);
       newEntries.push(entry);
     } catch (err) {
-      console.error(`[gen] failed ${slot.topic}/${slot.horizon}:`, err?.message || err);
+      console.error(`[gen] failed ${slot.topic.id}/${slot.horizon.id}:`, err?.message || err);
     }
   }
 
@@ -32,12 +32,33 @@ export async function runGeneration(env, { cron } = {}) {
     return;
   }
 
-  const merged = mergeArchive(existing, newEntries);
-  await env.WH_KV.put("predictions:all", JSON.stringify({
+  // Write each full record under its own KV key.
+  await Promise.all(newEntries.map((p) =>
+    env.WH_KV.put(`prediction:${p.id}`, JSON.stringify(p))));
+
+  // Update the compact index (sorted by question_generated_at desc).
+  const indexRows = [...existing, ...newEntries.map(toIndexEntry)]
+    .sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""));
+  await env.WH_KV.put("predictions:index", JSON.stringify({
     generated_at: new Date().toISOString(),
-    predictions: merged,
+    predictions: indexRows,
   }));
-  console.log(`[gen] wrote ${newEntries.length} new / ${merged.length} total`);
+
+  console.log(`[gen] wrote ${newEntries.length} new / ${indexRows.length} total`);
+}
+
+function toIndexEntry(p) {
+  return {
+    id: p.id,
+    headline: p.headline,
+    topic: p.topic,
+    horizon: p.horizon,
+    created_at: p.created_at,
+    resolves_by: p.resolves_by,
+    consensus_prob: p.consensus_prob,
+    verdict: p.verdict,
+    question_generated_at: p.question_generated_at,
+  };
 }
 
 function pickSlots(existing, n) {
@@ -58,7 +79,8 @@ function pickSlots(existing, n) {
   return all.slice(0, n);
 }
 
-async function generateOne(env, { topic, horizon }) {
+async function generateOne(env, { topic, horizon }, existing) {
+  const existingIds = new Set((existing || []).map((p) => p.id));
   const draftPrompt = [
     { role: "system", content: "You draft crisp yes/no prediction questions about the future. One short declarative sentence. No hedging. No explanation. Just the prediction sentence." },
     { role: "user", content: `Topic: ${topic.title} (${topic.hint}). Horizon: by ${horizon.label} from today. Write one concrete, falsifiable prediction about the near future in this topic and horizon.` },
@@ -92,7 +114,7 @@ async function generateOne(env, { topic, horizon }) {
   const consensus = probs.length ? median(probs) : 50;
 
   return {
-    id: newId(),
+    id: uniqueId(existingIds),
     source: "auto",
     question_generated_by: `${QUESTION_DRAFTER.provider}/${QUESTION_DRAFTER.model}`,
     question_generated_at: now,
@@ -109,22 +131,14 @@ async function generateOne(env, { topic, horizon }) {
   };
 }
 
-function mergeArchive(existing, fresh) {
-  const byId = new Map(existing.map((p) => [p.id, p]));
-  for (const n of fresh) {
-    let id = n.id;
-    let i = 1;
-    while (byId.has(id)) { id = `${n.id}-${i++}`; }
-    n.id = id;
-    byId.set(id, n);
+function uniqueId(existing) {
+  for (let tries = 0; tries < 10; tries++) {
+    const ts = Date.now().toString(36).slice(-6);
+    const rnd = Math.random().toString(36).slice(2, 6);
+    const id = `a${ts}${rnd}`;
+    if (!existing.has(id)) { existing.add(id); return id; }
   }
-  return [...byId.values()].sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""));
-}
-
-function newId() {
-  const ts = Date.now().toString(36).slice(-6);
-  const rnd = Math.random().toString(36).slice(2, 6);
-  return `a${ts}${rnd}`;
+  return `a${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 }
 
 function cleanHeadline(s) {

@@ -1,0 +1,53 @@
+{
+  "id": "p029",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-06-20T00:00:00.000Z",
+  "topic": "markets",
+  "horizon": "1m",
+  "created_at": "2026-06-20",
+  "resolves_by": "2026-07-20",
+  "headline": "Fed cuts rates by 25bps in June",
+  "consensus_prob": 48,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 37,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 38,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 58,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 51,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 49,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 55,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-06-20T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}

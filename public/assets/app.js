@@ -17,7 +17,8 @@
   async function loadData() {
     if (state.predictions) return state;
     const [p, h, s] = await Promise.all([
-      fetch("/data/predictions.json").then((r) => r.json()),
+      fetch("/api/predictions").then((r) => r.json()).catch(() =>
+        fetch("/data/index.json").then((r) => r.json())),
       fetch("/data/horizons.json").then((r) => r.json()),
       fetch("/data/subjects.json").then((r) => r.json()),
     ]);
@@ -25,6 +26,13 @@
     state.horizons = h;
     state.subjects = s;
     return state;
+  }
+
+  async function loadPrediction(id) {
+    const r = await fetch(`/api/predictions/${encodeURIComponent(id)}`);
+    if (r.ok) return r.json();
+    const fallback = await fetch(`/data/predictions/${encodeURIComponent(id)}.json`);
+    return fallback.ok ? fallback.json() : null;
   }
 
   // ── helpers ─────────────────────────────────────────────
@@ -145,7 +153,7 @@
   // ── rendering: detail ───────────────────────────────────
   async function renderDetail(id) {
     await loadData();
-    const p = state.predictions.find((x) => x.id === id);
+    const p = await loadPrediction(id);
     const root = document.getElementById("detail");
     if (!p) {
       root.innerHTML = "<h2 class='display' style='font-size:36px;'>Prediction not found.</h2><p><a class='pill' href='/timeline'>Back to timeline</a></p>";

@@ -1,0 +1,53 @@
+{
+  "id": "p032",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-06-23T00:00:00.000Z",
+  "topic": "culture",
+  "horizon": "6m",
+  "created_at": "2026-06-23",
+  "resolves_by": "2026-12-20",
+  "headline": "A film made entirely by AI grosses $100M+ globally before 2027",
+  "consensus_prob": 29,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 18,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 19,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 39,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 32,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 30,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 36,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-06-23T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}

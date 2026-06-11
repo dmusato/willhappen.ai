@@ -1,11 +1,16 @@
 // Backfill: build a historical seed archive from January 2026 to today.
-// Hand-curated headlines per (topic, month) so the site looks lived-in from
-// day one. Some early entries already have a verdict — to show the ✓ / ✗ chips.
+// Writes:
+//   public/data/predictions/<id>.json   — one full record per prediction
+//   public/data/index.json              — compact listing for feeds/timeline
 //
-// Run:  node scripts/backfill.mjs
-// Writes:  public/data/predictions.json
+// Run:  npm run backfill
 
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const OUT = resolve(here, "../public/data");
 
 const MODELS = [
   { key: "gemini",   provider: "google-ai-studio/gemini-2.5-pro" },
@@ -17,7 +22,6 @@ const MODELS = [
 ];
 
 // Each row: [month_index_from_jan_2026, topic, horizon, headline, base_prob, verdict_if_known]
-// Months 0..5 = Jan..Jun 2026.  verdict: true|false|null.
 const ROWS = [
   [0, "ai",       "1m",  "OpenAI announces a multi-agent coding product in January",                 78, true],
   [0, "markets",  "1m",  "S&P 500 closes January above 6,200",                                       62, true],
@@ -59,7 +63,6 @@ const ROWS = [
   [5, "longevity","10y", "An FDA-approved drug labeled to 'treat aging' exists by 2036",             36, null],
   [5, "oceans",   "10y", "Arctic Ocean has its first ice-free September before 2036",                73, null],
 
-  // Multi-decade horizons drafted recently
   [5, "space",    "50y", "A permanent, self-sustaining human settlement on Mars by 2076",            41, null],
   [5, "climate",  "100y","Net global CO₂ emissions reach zero and stay there before 2126",          49, null],
   [5, "biotech",  "100y","Average global life expectancy exceeds 100 years by 2126",                 28, null],
@@ -70,17 +73,10 @@ const ROWS = [
 
 const HORIZON_DAYS = { "1w":7, "1m":30, "6m":180, "1y":365, "3y":1095, "5y":1825, "10y":3650, "50y":18250, "100y":36500 };
 
-function dayInMonth(monthIdx, day = 15) {
-  // monthIdx 0 = Jan 2026
-  return new Date(Date.UTC(2026, monthIdx, day));
-}
-
-function shortId(n) {
-  return "p" + (n + 1).toString().padStart(3, "0");
-}
+const dayInMonth = (m, d = 15) => new Date(Date.UTC(2026, m, d));
+const shortId = (i) => "p" + (i + 1).toString().padStart(3, "0");
 
 function spread(base, key) {
-  // Deterministic ±12 jitter per model so consensus looks plausible.
   const c = key.charCodeAt(0) + key.length * 3;
   const delta = ((c * 31) % 25) - 12;
   return Math.max(2, Math.min(98, base + delta));
@@ -89,7 +85,7 @@ function spread(base, key) {
 function buildPrediction(row, i) {
   const [monthIdx, topic, horizon, headline, baseProb, verdict] = row;
   const created = dayInMonth(monthIdx, 10 + (i % 18));
-  const queryTime = new Date(created.getTime() + 3 * 3600_000); // +3h
+  const queryTime = new Date(created.getTime() + 3 * 3600_000);
   const resolves = new Date(created.getTime() + HORIZON_DAYS[horizon] * 86400_000);
 
   const models = {};
@@ -104,7 +100,6 @@ function buildPrediction(row, i) {
       queried_at: queryTime.toISOString(),
     };
   }
-  const consensus = Math.round(sum / MODELS.length);
 
   return {
     id: shortId(i),
@@ -116,7 +111,7 @@ function buildPrediction(row, i) {
     created_at: created.toISOString().slice(0, 10),
     resolves_by: resolves.toISOString().slice(0, 10),
     headline,
-    consensus_prob: consensus,
+    consensus_prob: Math.round(sum / MODELS.length),
     models,
     verdict,
     verdict_source: verdict === null ? null : "maintainer",
@@ -124,18 +119,40 @@ function buildPrediction(row, i) {
   };
 }
 
+function indexEntry(p) {
+  return {
+    id: p.id,
+    headline: p.headline,
+    topic: p.topic,
+    horizon: p.horizon,
+    created_at: p.created_at,
+    resolves_by: p.resolves_by,
+    consensus_prob: p.consensus_prob,
+    verdict: p.verdict,
+    question_generated_at: p.question_generated_at,
+  };
+}
+
+// ── write ────────────────────────────────────────────────
+rmSync(resolve(OUT, "predictions"), { recursive: true, force: true });
+mkdirSync(resolve(OUT, "predictions"), { recursive: true });
+
 const predictions = ROWS.map(buildPrediction);
 
-const archive = {
+for (const p of predictions) {
+  writeFileSync(resolve(OUT, "predictions", `${p.id}.json`), JSON.stringify(p, null, 2) + "\n");
+}
+
+const index = {
   generated_at: new Date().toISOString(),
-  predictions,
+  predictions: predictions
+    .slice()
+    .sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""))
+    .map(indexEntry),
 };
+writeFileSync(resolve(OUT, "index.json"), JSON.stringify(index, null, 2) + "\n");
 
-writeFileSync(
-  new URL("../public/data/predictions.json", import.meta.url),
-  JSON.stringify(archive, null, 2) + "\n",
-);
-
-console.log(`✓ wrote ${predictions.length} predictions to public/data/predictions.json`);
-console.log(`  range: ${predictions[0].created_at} → ${predictions[predictions.length - 1].created_at}`);
+console.log(`✓ wrote ${predictions.length} files to public/data/predictions/`);
+console.log(`✓ wrote index with ${index.predictions.length} entries to public/data/index.json`);
+console.log(`  range:    ${predictions[0].created_at} → ${predictions[predictions.length - 1].created_at}`);
 console.log(`  resolved: ${predictions.filter((p) => p.verdict !== null).length}`);

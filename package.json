@@ -9,7 +9,7 @@
     "dev:fresh": "rm -rf .wrangler/state && wrangler dev --local --test-scheduled",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "kv:seed": "wrangler kv key put --binding=WH_KV 'predictions:all' --path=public/data/predictions.json",
+    "kv:seed-index": "wrangler kv key put --binding=WH_KV 'predictions:index' --path=public/data/index.json",
     "cron:trigger": "curl -s 'http://localhost:8787/__scheduled?cron=17+3+*+*+*' && echo",
     "backfill": "node scripts/backfill.mjs",
     "lint": "for f in src/worker.js src/handlers/*.js src/generate/*.js src/social/*.js; do node --check $f || exit 1; done"

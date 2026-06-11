@@ -13,16 +13,28 @@ const FRESH_DAYS = 2;         // only post predictions drafted in the last N day
 
 export async function runSocialPosting(env) {
   const site = env.SITE_URL || "https://willhappen.ai";
-  const archive = await env.WH_KV.get("predictions:all", "json");
-  const all = archive?.predictions || [];
-  if (!all.length) return;
+  const indexDoc = await env.WH_KV.get("predictions:index", "json");
+  const idx = indexDoc?.predictions || [];
+  if (!idx.length) return;
 
   const cutoff = Date.now() - FRESH_DAYS * 86400_000;
-  const fresh = all
+  const recentIds = idx
     .filter((p) => p.question_generated_at && new Date(p.question_generated_at).getTime() > cutoff)
-    .sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""));
-  if (!fresh.length) {
+    .sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""))
+    .map((p) => p.id);
+
+  if (!recentIds.length) {
     console.log("[social] nothing fresh to post");
+    return;
+  }
+
+  const fresh = [];
+  for (const id of recentIds) {
+    const full = await env.WH_KV.get(`prediction:${id}`, "json");
+    if (full) fresh.push(full);
+  }
+  if (!fresh.length) {
+    console.log("[social] no full records resolved for fresh ids");
     return;
   }
 

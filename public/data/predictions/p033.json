@@ -1,0 +1,53 @@
+{
+  "id": "p033",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-06-24T00:00:00.000Z",
+  "topic": "longevity",
+  "horizon": "10y",
+  "created_at": "2026-06-24",
+  "resolves_by": "2036-06-21",
+  "headline": "An FDA-approved drug labeled to 'treat aging' exists by 2036",
+  "consensus_prob": 36,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 25,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 26,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 46,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 39,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 37,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 43,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-06-24T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}

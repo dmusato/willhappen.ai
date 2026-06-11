@@ -1,0 +1,53 @@
+{
+  "id": "p038",
+  "source": "seed",
+  "question_generated_by": "anthropic/claude-sonnet-4-6",
+  "question_generated_at": "2026-06-11T00:00:00.000Z",
+  "topic": "ai",
+  "horizon": "100y",
+  "created_at": "2026-06-11",
+  "resolves_by": "2126-05-18",
+  "headline": "A non-human entity holds elected political office before 2126",
+  "consensus_prob": 14,
+  "models": {
+    "gemini": {
+      "provider": "google-ai-studio/gemini-2.5-pro",
+      "prob": 3,
+      "note": "Backfill seed · gemini prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    },
+    "claude": {
+      "provider": "anthropic/claude-sonnet-4-6",
+      "prob": 4,
+      "note": "Backfill seed · claude prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    },
+    "gpt": {
+      "provider": "openai/gpt-5",
+      "prob": 24,
+      "note": "Backfill seed · gpt prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    },
+    "grok": {
+      "provider": "grok/grok-4",
+      "prob": 17,
+      "note": "Backfill seed · grok prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    },
+    "llama": {
+      "provider": "workers-ai/@cf/meta/llama-3.3-70b-instruct",
+      "prob": 15,
+      "note": "Backfill seed · llama prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    },
+    "deepseek": {
+      "provider": "deepseek/deepseek-chat",
+      "prob": 21,
+      "note": "Backfill seed · deepseek prior",
+      "queried_at": "2026-06-11T03:00:00.000Z"
+    }
+  },
+  "verdict": null,
+  "verdict_source": null,
+  "verdict_note": null
+}
