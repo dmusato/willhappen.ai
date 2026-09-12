@@ -16,7 +16,7 @@ import { handleSitemap } from "./handlers/sitemap.js";
 import { handleFeed } from "./handlers/feed.js";
 import { handleAdmin } from "./handlers/admin.js";
 import { json, preflight } from "./handlers/http.js";
-import { getIndex } from "./store/kv.js";
+import { getIndex, INDEX_KEY } from "./store/kv.js";
 import { getLeaderboard } from "./pipeline/score.js";
 import { runCycle } from "./pipeline/run.js";
 import { runSocial } from "./social/index.js";
@@ -85,10 +85,11 @@ async function renderPage(path, url, env, request) {
   const site = siteUrl(env, url);
 
   if (path === "/") {
-    const [index, board] = await Promise.all([getIndex(env), getLeaderboard(env)]);
-    if (!index.predictions.length) await seedFromAssets(env, request);
-    const fresh = index.predictions.length ? index : await getIndex(env);
-    return html(homePage({ site, index: fresh, board }));
+    // Seed only when the key is genuinely absent. Keying off an empty array
+    // would re-write KV on every home page view of a site with no forecasts yet.
+    const [stored, board] = await Promise.all([env.WH_KV.get(INDEX_KEY, "json"), getLeaderboard(env)]);
+    const index = stored || (await seedFromAssets(env, request)) || { generated_at: null, predictions: [] };
+    return html(homePage({ site, index, board }));
   }
 
   if (path === "/timeline") {
@@ -141,13 +142,19 @@ function parseQuery(url) {
   };
 }
 
-// First boot: pull the repo's seed index into KV so the site is never empty.
+// First boot: pull the repo's seed index into KV. Ships empty by default —
+// a self-hosted instance fills it from its own first run rather than inheriting
+// someone else's forecasts.
 async function seedFromAssets(env, request) {
   try {
     const res = await env.ASSETS.fetch(new URL("/data/index.json", request.url));
-    if (res.ok) await env.WH_KV.put("predictions:index", JSON.stringify(await res.json()));
+    if (!res.ok) return null;
+    const doc = await res.json();
+    await env.WH_KV.put(INDEX_KEY, JSON.stringify(doc));
+    return doc;
   } catch (err) {
     console.warn("[seed] failed:", err?.message || err);
+    return null;
   }
 }
 

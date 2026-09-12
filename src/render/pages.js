@@ -405,32 +405,45 @@ ${rosterForClient().map((m) => `    <li style="--c:${m.color};--ink:${m.ink}"><s
   });
 }
 
-// A reliability diagram: what a model said against what actually happened.
+// A reliability diagram: what a forecaster said against what actually happened.
 // The diagonal is perfect calibration.
+//
+// Eight equally-weighted polylines is spaghetti, so the two lines that carry
+// the argument — the panel against the market — are drawn solid and the
+// individual models sit behind them.
 function calibrationChart(ranked, min) {
   const usable = ranked.filter((r) => r.calibration?.length >= 2 && r.n >= Math.min(min, 5));
   if (!usable.length) return `<p class="empty">Not enough settled questions to draw a calibration curve yet.</p>`;
 
-  const W = 420, H = 420, pad = 42;
+  const lead = new Set(["consensus", "market"]);
+  const ordered = [...usable.filter((r) => !lead.has(r.key)), ...usable.filter((r) => lead.has(r.key))];
+
+  const W = 460, H = 440, pad = 46;
   const x = (v) => pad + (v / 100) * (W - pad * 2);
   const y = (v) => H - pad - (v / 100) * (H - pad * 2);
 
   return `<div class="calib">
-<svg viewBox="0 0 ${W} ${H}" class="calib-svg" role="img" aria-label="Calibration curves: predicted probability against observed outcome rate">
+<svg viewBox="0 0 ${W} ${H}" class="calib-svg" role="img" aria-label="Calibration: predicted probability against observed outcome rate">
   <rect x="${pad}" y="${pad}" width="${W - pad * 2}" height="${H - pad * 2}" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.1)"/>
-  ${[0, 25, 50, 75, 100].map((v) => `<line x1="${x(v)}" y1="${pad}" x2="${x(v)}" y2="${H - pad}" stroke="rgba(255,255,255,.05)"/><line x1="${pad}" y1="${y(v)}" x2="${W - pad}" y2="${y(v)}" stroke="rgba(255,255,255,.05)"/>`).join("")}
-  <line x1="${x(0)}" y1="${y(0)}" x2="${x(100)}" y2="${y(100)}" stroke="rgba(245,243,255,.35)" stroke-dasharray="4 5"/>
-  ${usable.map((r) => {
+  ${[25, 50, 75].map((v) => `<line x1="${x(v)}" y1="${pad}" x2="${x(v)}" y2="${H - pad}" stroke="rgba(255,255,255,.05)"/><line x1="${pad}" y1="${y(v)}" x2="${W - pad}" y2="${y(v)}" stroke="rgba(255,255,255,.05)"/>`).join("")}
+  <line x1="${x(0)}" y1="${y(0)}" x2="${x(100)}" y2="${y(100)}" stroke="rgba(245,243,255,.3)" stroke-dasharray="4 5"/>
+  ${ordered.map((r) => {
+    const on = lead.has(r.key);
     const pts = r.calibration.map((c) => `${x(c.said)},${y(c.happened)}`).join(" ");
-    return `<polyline points="${pts}" fill="none" stroke="${h(r.color || "#a78bfa")}" stroke-width="2" stroke-linejoin="round" opacity=".9"/>` +
-      r.calibration.map((c) => `<circle cx="${x(c.said)}" cy="${y(c.happened)}" r="${Math.min(7, 2.5 + c.n * 0.5)}" fill="${h(r.color || "#a78bfa")}"><title>${h(r.name)}: said ~${c.said}%, happened ${c.happened}% (${c.n})</title></circle>`).join("");
+    return `<polyline points="${pts}" fill="none" stroke="${h(r.color || "#a78bfa")}" stroke-width="${on ? 2.5 : 1.4}" stroke-linejoin="round" opacity="${on ? 1 : 0.34}"/>` +
+      r.calibration.map((c) => `<circle cx="${x(c.said)}" cy="${y(c.happened)}" r="${on ? Math.min(7, 3 + c.n * 0.4) : 2.6}" fill="${h(r.color || "#a78bfa")}" opacity="${on ? 1 : 0.4}"><title>${h(r.name)}: said ~${c.said}%, happened ${c.happened}% (${c.n} question${c.n === 1 ? "" : "s"})</title></circle>`).join("");
   }).join("")}
-  <text x="${W / 2}" y="${H - 10}" text-anchor="middle" class="calib-label">what the model said →</text>
-  <text x="14" y="${H / 2}" text-anchor="middle" transform="rotate(-90 14 ${H / 2})" class="calib-label">what happened →</text>
+  ${[0, 50, 100].map((v) => `<text x="${x(v)}" y="${H - pad + 20}" text-anchor="middle" class="calib-tick">${v}</text><text x="${pad - 10}" y="${y(v) + 4}" text-anchor="end" class="calib-tick">${v}</text>`).join("")}
+  <text x="${W / 2}" y="${H - 8}" text-anchor="middle" class="calib-label">what it said →</text>
+  <text x="13" y="${H / 2}" text-anchor="middle" transform="rotate(-90 13 ${H / 2})" class="calib-label">what happened →</text>
 </svg>
-<ul class="calib-key">${usable.map((r) => `<li><span style="--c:${h(r.color || "#a78bfa")}"></span>${h(r.name)}</li>`).join("")}</ul>
-<p class="fineprint">On the dashed line means honest: when it says 70%, it happens 70% of the time. Above the line is
-under-confident, below is over-confident.</p>
+<div class="calib-aside">
+  <ul class="calib-key">${ordered.slice().reverse().map((r) =>
+    `<li${lead.has(r.key) ? ' class="on"' : ""}><span style="--c:${h(r.color || "#a78bfa")}"></span>${h(r.name)}</li>`).join("")}</ul>
+  <p class="fineprint">On the dashed line means honest: when it says 70%, it happens 70% of the time.
+  Above the line is under-confident, below is over-confident. The panel and the markets are drawn
+  solid because that is the comparison worth reading; individual models sit behind them.</p>
+</div>
 </div>`;
 }
 

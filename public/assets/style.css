@@ -544,13 +544,17 @@ p { margin: 0 0 1em; }
 .board .num { font-family: var(--mono); text-align: right; }
 .board .strong { font-size: 16px; color: var(--text); }
 
-.calib { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 28px; align-items: start; }
+.calib { display: grid; grid-template-columns: minmax(0, 500px) minmax(0, 1fr); gap: 36px; align-items: start; }
 .calib-svg { width: 100%; height: auto; }
-.calib-label { fill: rgba(245,243,255,.4); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
-.calib-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 18px; }
-.calib-key li { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); }
-.calib-key span { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
-.calib .fineprint { flex-basis: 100%; margin-top: 14px; }
+.calib-label { fill: rgba(245,243,255,.42); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
+.calib-tick { fill: rgba(245,243,255,.3); font-family: var(--mono); font-size: 10px; }
+.calib-aside { display: flex; flex-direction: column; gap: 18px; }
+.calib-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 20px; }
+.calib-key li { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mute); }
+.calib-key li.on { color: var(--text); font-weight: 500; }
+.calib-key span { width: 10px; height: 10px; border-radius: 50%; background: var(--c); opacity: .45; }
+.calib-key li.on span { opacity: 1; box-shadow: 0 0 8px var(--c); }
+.calib .fineprint { max-width: 46ch; }
 
 .panel-cards { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 .panel-cards li {
@@ -627,8 +631,13 @@ p { margin: 0 0 1em; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .foot-grid > div:first-child { grid-column: 1 / -1; }
   .calib { grid-template-columns: 1fr; }
-  .model { grid-template-columns: 30px 1fr 64px; row-gap: 6px; }
-  .model-note { grid-column: 2 / -1; }
+  /* Explicit placement: with only the note spanning, auto-placement pushed the
+     percentage onto a third row under the badge. */
+  .model { grid-template-columns: 30px 1fr auto; row-gap: 10px; padding: 14px 16px; }
+  .model-badge { grid-area: 1 / 1; }
+  .model-id { grid-area: 1 / 2; }
+  .model-prob { grid-area: 1 / 3; }
+  .model-note { grid-area: 2 / 1 / 3 / -1; }
 }
 
 @media (max-width: 720px) {
