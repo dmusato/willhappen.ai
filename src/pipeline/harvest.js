@@ -89,6 +89,12 @@ export async function harvestMarkets(env, { want = 12 } = {}) {
   for (const c of curated) {
     const m = fresh[c.ref];
     if (!m) continue;
+    // Two exchanges list the same event under different wording, so the
+    // rewritten headline needs its own dedupe pass — the source-question
+    // fingerprints were different by construction.
+    const headFp = fingerprint(c.headline);
+    if (known.has(headFp)) continue;
+    known.add(headFp);
     queued.push({
       fingerprint: m.fingerprint,
       headline: c.headline,

@@ -117,8 +117,11 @@ p { margin: 0 0 1em; }
   background: radial-gradient(circle at 34% 28%, #fff, var(--lilac) 42%, var(--sky) 100%);
   box-shadow: 0 0 14px rgba(167,139,250,.55), inset 0 0 4px rgba(255,255,255,.35);
 }
+/* The wordmark is one flex item — the gap above must not fall between its
+   own letters. */
+.logo .word { white-space: nowrap; }
 .logo i { font-style: italic; color: var(--lilac); }
-.logo small { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: .06em; color: var(--text-mute); margin-left: 2px; }
+.logo small { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: .06em; color: var(--text-mute); margin-left: 3px; }
 .logo.small { font-size: 19px; }
 
 .nav-links { display: flex; align-items: center; gap: 26px; font-size: 14px; color: var(--text-dim); }
@@ -224,12 +227,17 @@ p { margin: 0 0 1em; }
 }
 
 /* ── prediction rows ──────────────────────────────────── */
-.rows { display: flex; flex-direction: column; }
+/* A list of rows is a page-level element in its own right (the timeline uses
+   it bare), so it carries the page gutter. Inside a .block the gutter is
+   already there — take it back off. */
+.rows { display: flex; flex-direction: column; max-width: var(--wide); margin: 0 auto; padding: 0 var(--gut); }
+.block .rows, .detail .rows { max-width: none; padding: 0; }
 .row {
   display: grid;
   grid-template-columns: 108px 1fr 108px;
   gap: 22px; align-items: center;
   padding: 20px 14px; margin: 0 -14px;
+  scroll-margin-top: 80px;
   border-radius: var(--r-md);
   border-bottom: 1px solid var(--hair-soft);
   transition: background .2s var(--ease), transform .2s var(--ease);
@@ -257,7 +265,7 @@ p { margin: 0 0 1em; }
 .row-nums { text-align: right; }
 .row-prob { font-family: var(--display); font-size: 34px; line-height: 1; letter-spacing: -.03em; }
 .row-prob i { font-style: normal; font-size: .45em; opacity: .5; margin-left: 1px; }
-.row-sub { display: block; margin-top: 5px; font-size: 9.5px; letter-spacing: .1em; }
+.row-sub { display: block; margin-top: 5px; font-size: 9.5px; letter-spacing: .08em; color: var(--text-mute); }
 .high { color: var(--mint); }
 .mid  { color: var(--lilac); }
 .low  { color: var(--rose); }
@@ -271,7 +279,7 @@ p { margin: 0 0 1em; }
 
 /* ── the dial ─────────────────────────────────────────── */
 .dial { max-width: var(--read); margin: 40px auto 0; }
-.dial-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 26px; }
+.dial-head { display: flex; align-items: baseline; gap: 26px; margin-bottom: 26px; }
 .dial-num {
   font-family: var(--display); font-size: clamp(76px, 16vw, 132px);
   line-height: .82; letter-spacing: -.055em;
@@ -326,7 +334,7 @@ p { margin: 0 0 1em; }
 .dial-market em { bottom: -24px; font-style: normal; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(110,231,183,.72); }
 
 .dial-axis {
-  display: flex; justify-content: space-between; margin-top: 26px;
+  display: flex; justify-content: space-between; margin-top: 36px;
   font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-ghost);
 }
 
@@ -345,6 +353,9 @@ p { margin: 0 0 1em; }
 .detail-context { color: var(--text-dim); font-size: 16.5px; line-height: 1.65; max-width: 60ch; }
 
 .detail .block { padding-left: 0; padding-right: 0; max-width: none; }
+/* Related predictions belong to the same reading column as the article above
+   them, not to the wider page grid. */
+#related { max-width: var(--read); }
 
 /* ── model list ───────────────────────────────────────── */
 .models { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -475,6 +486,7 @@ p { margin: 0 0 1em; }
 .filter-line input:focus, .filter-line select:focus, .form textarea:focus, .form select:focus { border-color: rgba(167,139,250,.55); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 7px; max-width: var(--wide); margin: 16px auto 0; padding: 0 var(--gut); }
+.block .chips { max-width: none; padding: 0; }
 .chips.topics { margin-top: 8px; }
 .chip-link {
   padding: 6px 13px; border-radius: 999px;

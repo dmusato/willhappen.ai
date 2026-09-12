@@ -72,7 +72,7 @@ const LINKS = [
 
 function nav(page) {
   return `<nav class="nav">
-  <a class="logo" href="/" aria-label="WillHappen.ai home"><span class="dot" aria-hidden="true"></span>will<i>happen</i><small>.ai</small></a>
+  <a class="logo" href="/" aria-label="WillHappen.ai home"><span class="dot" aria-hidden="true"></span><span class="word">will<i>happen</i><small>.ai</small></span></a>
   <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Menu"><span></span><span></span></button>
   <div class="nav-links" id="nav-links">
     ${LINKS.map((l) => `<a href="${l.href}"${page === l.key ? ' aria-current="page"' : ""}>${l.label}</a>`).join("\n    ")}
@@ -88,7 +88,7 @@ function footer() {
   return `<footer class="foot">
   <div class="foot-grid">
     <div>
-      <a class="logo small" href="/"><span class="dot" aria-hidden="true"></span>will<i>happen</i><small>.ai</small></a>
+      <a class="logo small" href="/"><span class="dot" aria-hidden="true"></span><span class="word">will<i>happen</i><small>.ai</small></span></a>
       <p>An open forecasting machine. Every day it reads the news and the prediction markets, asks six frontier models what happens next, then goes back and checks who was right.</p>
     </div>
     <div>

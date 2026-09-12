@@ -187,7 +187,7 @@ export function predictionPage({ site, p, related }) {
   </p>
 </article>
 
-${related.length ? section("More in this thread", rows(related), { kicker: "RELATED" }) : ""}`;
+${related.length ? section("More in this thread", rows(related), { kicker: "RELATED", id: "related" }) : ""}`;
 
   return shell({
     site, page: "prediction", body, ogType: "article",
