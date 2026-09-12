@@ -365,6 +365,7 @@ export function modelsPage({ site, board }) {
   markets are scored on exactly the same questions.</p>
 </section>
 
+${provenance(board)}
 ${!ranked.length ? `<p class="empty">No questions have resolved yet. The board fills itself as deadlines pass.</p>` : `
 ${enough ? "" : `<p class="notice">Provisional — the board needs ${min} settled questions per row before the ranking means anything. Treat it as a sample, not a verdict.</p>`}
 <div class="board-wrap">
@@ -403,6 +404,20 @@ ${rosterForClient().map((m) => `    <li style="--c:${m.color};--ink:${m.ink}"><s
     description: "Brier scores and calibration for six frontier AI models on real resolved questions, benchmarked against Polymarket and Kalshi prices.",
     canonical: `${site}/models`,
   });
+}
+
+// Where the outcomes came from. Stated up front because it is what the whole
+// board rests on.
+function provenance(board) {
+  const by = board?.resolved_by || {};
+  const total = board?.resolved || 0;
+  if (!total) return "";
+  const parts = [
+    by.exchange ? `<b>${by.exchange}</b> settled by the exchange that listed them` : null,
+    by.jury ? `<b>${by.jury}</b> decided by three models agreeing on cited evidence` : null,
+    by.maintainer ? `<b>${by.maintainer}</b> confirmed by hand` : null,
+  ].filter(Boolean);
+  return `<p class="provenance">Graded on <b>${total}</b> settled question${total === 1 ? "" : "s"}: ${parts.join(", ")}.</p>`;
 }
 
 // A reliability diagram: what a forecaster said against what actually happened.
@@ -475,10 +490,21 @@ export function aboutPage({ site }) {
   how well a model can read a number out of its prompt.</p>
 
   <h2>How outcomes get decided</h2>
-  <p>Once a deadline passes, a search-grounded model gathers evidence and cites it. A second model then rules on
-  that evidence alone — it never searches, so it can't talk itself into a story. A verdict publishes automatically
-  only when it is confident and backed by at least two sources; everything else waits for a human. The sources are
-  printed on the page so anyone can check the call, and
+  <p>This is the part that can put a falsehood on a page as a fact, so it is tiered by how much the
+  evidence is actually worth.</p>
+  <p><b>First, the exchange.</b> Most questions here come from Polymarket or Kalshi, and those markets settle
+  themselves — with real money paid out, a formal dispute window, and bonds that reach six figures. When the
+  exchange has paid out, that is the answer. No model gets a vote. Because a model rewrote the market's question
+  into our headline, one cheap check confirms the two still mean the same thing before the settlement is applied;
+  if the wording drifted, or if the resolution was itself disputed, it goes to a human instead.</p>
+  <p><b>Then, a jury.</b> For questions with no market behind them, a search-grounded model gathers evidence and
+  cites it. Three models from three different labs then rule on that evidence alone — they cannot search, so they
+  cannot talk themselves into a story, and they never see each other's answers. The verdict publishes only if all
+  three agree, with at least two sources. Each juror also has to say what it is standing on, and a "didn't happen"
+  resting purely on nobody having written about it never publishes automatically — absence of coverage is the
+  easiest way to be confidently wrong.</p>
+  <p><b>Then, a person.</b> Everything else waits. The sources are printed on the page, the method is named on
+  every verdict, and
   <a href="https://github.com/dmusato/willhappen.ai/issues/new?template=report-outcome.yml" rel="noopener" target="_blank">disputing one</a>
   takes a minute.</p>
 
@@ -501,7 +527,7 @@ export function aboutPage({ site }) {
   <ul>
     <li>Language models are not oracles. They are fluent, confident, and wrong on a schedule nobody has mapped — which is the point of keeping score in public.</li>
     <li>Question selection is biased toward what markets and English-language news cover.</li>
-    <li>Auto-resolution can be wrong. Confident verdicts still publish themselves, with their sources attached, and disputes are welcome.</li>
+    <li>Auto-resolution can be wrong. Exchange settlements are about as solid as this gets; a jury verdict is three models agreeing on what they read, which is not the same thing. Both say which they are, and both can be disputed.</li>
     <li>None of this is financial advice.</li>
   </ul>
 </div>`;

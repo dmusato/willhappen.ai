@@ -174,12 +174,19 @@ function mock(model, messages, schema) {
   } else if (schema.name === "forecast") {
     content = JSON.stringify({ prob: 8 + (pick(84)), note: `Mock rationale from ${model.split("/").pop()}.` });
   } else if (schema.name === "verdict") {
+    const status = ["happened", "not_happened", "unclear"][pick(3)];
     content = JSON.stringify({
-      status: ["happened", "not_happened", "unclear"][pick(3)],
+      status,
+      basis: status === "happened" ? "direct_evidence" : status === "not_happened" ? "contradicting_evidence" : "insufficient",
       confidence: 55 + pick(45),
       summary: "Mock resolution summary.",
-      sources: [{ title: "Mock source", url: "https://example.com/mock" }],
+      sources: [
+        { title: "Mock source A", url: "https://example.com/mock-a" },
+        { title: "Mock source B", url: "https://example.com/mock-b" },
+      ],
     });
+  } else if (schema.name === "polarity") {
+    content = JSON.stringify({ relation: "same", why: "mock mode assumes the headline kept the market's polarity" });
   } else {
     content = "{}";
   }

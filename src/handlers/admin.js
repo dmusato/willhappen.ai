@@ -58,9 +58,11 @@ async function setVerdict(env, { id, verdict, note = "", source = "maintainer" }
     ...p,
     verdict,
     verdict_source: source,
+    verdict_method: "maintainer",
     verdict_at: new Date().toISOString(),
     verdict_note: String(note).slice(0, 400) || p.verdict_note,
     verdict_confidence: 100,
+    verdict_detail: null,
   };
   await putPrediction(env, next);
   await writeIndex(env, [next]);

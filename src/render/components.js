@@ -96,20 +96,40 @@ function readout(ai, market, edge) {
   return `The models are ${strength} ${dir} confident than traders risking real money: ${ai}% against ${market}%.`;
 }
 
+const METHODS = {
+  exchange: { label: "Settled by the exchange", tone: "hard",
+    blurb: "The prediction market this came from paid out on this outcome. Real money, with a formal dispute window — the strongest evidence available here." },
+  jury: { label: "Three models agreed on the evidence", tone: "soft",
+    blurb: "A search-grounded model gathered the sources below; three models from three different labs then ruled on that evidence independently and reached the same answer." },
+  maintainer: { label: "Confirmed by a maintainer", tone: "hard",
+    blurb: "Reviewed and published by a person." },
+};
+
 export function verdictBlock(p) {
   if (p.verdict !== true && p.verdict !== false) return "";
   const yes = p.verdict === true;
+  const method = METHODS[p.verdict_method] || METHODS[p.verdict_source === "maintainer" ? "maintainer" : "jury"];
+  const votes = p.verdict_detail?.votes;
+
   return `<section class="verdict ${yes ? "yes" : "no"}">
   <div class="verdict-mark" aria-hidden="true">${yes ? "✓" : "✗"}</div>
-  <div>
+  <div class="verdict-body">
     <h2>${yes ? "It happened." : "It didn't happen."}</h2>
     ${p.verdict_note ? `<p>${h(p.verdict_note)}</p>` : ""}
-    <p class="verdict-meta mono">
-      ${h(p.verdict_source === "resolver" ? "Auto-resolved from sources" : "Confirmed by a maintainer")}
-      ${p.verdict_confidence ? ` · ${p.verdict_confidence}% confidence` : ""}
-      ${p.verdict_at ? ` · ${fmtDate(p.verdict_at)}` : ""}
+    <p class="verdict-how">
+      <b class="mono">${h(method.label)}</b>
+      <span>${h(method.blurb)}</span>
     </p>
+    ${votes?.length ? `<ul class="jury">${votes.map((v) => {
+      const m = byKey(v.model);
+      return `<li${m ? ` style="--c:${m.color}"` : ""}><b>${h(m?.name || v.model)}</b><span>${h(String(v.status).replace("_", " "))}</span><em>${h(String(v.basis || "").replace(/_/g, " "))}</em></li>`;
+    }).join("")}</ul>` : ""}
+    ${p.verdict_detail?.market_question ? `<p class="verdict-origin">The market that settled it asked: <q>${h(p.verdict_detail.market_question)}</q></p>` : ""}
     ${sourceList(p.sources)}
+    <p class="verdict-meta mono">
+      ${p.verdict_at ? `${fmtDate(p.verdict_at)}` : ""}${p.verdict_method === "jury" && p.verdict_confidence ? ` · ${p.verdict_confidence}% mean confidence` : ""}
+      · <a href="https://github.com/dmusato/willhappen.ai/issues/new?template=report-outcome.yml" rel="noopener" target="_blank">dispute this</a>
+    </p>
   </div>
 </section>`;
 }

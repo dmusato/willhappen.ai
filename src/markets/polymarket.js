@@ -86,3 +86,38 @@ export async function fetchOne(env, externalId) {
   const row = Array.isArray(raw) ? raw[0] : raw;
   return row ? normalize(row) : null;
 }
+
+// How the exchange itself settled. This is the strongest ground truth we have
+// for any question that came from a market: real money, and a formal dispute
+// process (UMA's optimistic oracle, with bonds that reach six figures).
+export async function fetchResolution(env, externalId) {
+  const marketId = String(externalId).split(":")[1];
+  if (!marketId) return null;
+  const res = await fetch(`${GAMMA}/markets/${encodeURIComponent(marketId)}`, { headers: { accept: "application/json" } });
+  if (!res.ok) return null;
+  const raw = await res.json();
+  const row = Array.isArray(raw) ? raw[0] : raw;
+  if (!row) return null;
+
+  const outcomes = jsonish(row.outcomes) || [];
+  const prices = (jsonish(row.outcomePrices) || []).map(Number);
+  const yesAt = outcomes.findIndex((o) => String(o).toLowerCase() === "yes");
+  const statuses = (jsonish(row.umaResolutionStatuses) || []).map((x) => String(x).toLowerCase());
+
+  const settled = row.closed === true && yesAt !== -1 &&
+    prices.length === 2 && prices.every((v) => Number.isFinite(v)) &&
+    // A settled binary market pays 1 on one side and 0 on the other. Anything
+    // in between means it is closed but not yet resolved.
+    Math.max(...prices) === 1 && Math.min(...prices) === 0;
+
+  return {
+    source: id,
+    settled,
+    outcome: settled ? (prices[yesAt] === 1 ? "yes" : "no") : null,
+    // A contested resolution is exactly the case a human should look at.
+    disputed: statuses.includes("disputed"),
+    question: String(row.question || "").trim(),
+    url: row.slug ? `https://polymarket.com/market/${row.slug}` : "https://polymarket.com",
+    bond_usd: Number(row.umaBond) || null,
+  };
+}

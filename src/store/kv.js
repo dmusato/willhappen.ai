@@ -156,6 +156,27 @@ export async function dropReview(env, id) {
   await env.WH_KV.put(REVIEW_KEY, JSON.stringify(q.filter((r) => r.id !== id)));
 }
 
+// ── resolution bookkeeping ───────────────────────────────────
+// One key, not one per prediction: a market whose deadline passed but which
+// the exchange has not settled yet would otherwise be re-checked every run and
+// block newer questions from ever being looked at.
+const CHECKED_KEY = "resolve:checked";
+const CHECKED_TTL_DAYS = 200;
+
+export const getChecked = async (env) => (await env.WH_KV.get(CHECKED_KEY, "json")) || {};
+
+export async function markChecked(env, ids) {
+  if (!ids.length) return;
+  const now = Date.now();
+  const map = await getChecked(env);
+  for (const id of ids) map[id] = new Date(now).toISOString();
+
+  const cutoff = now - CHECKED_TTL_DAYS * 86_400_000;
+  const pruned = Object.fromEntries(
+    Object.entries(map).filter(([, at]) => Date.parse(at) > cutoff));
+  await env.WH_KV.put(CHECKED_KEY, JSON.stringify(pruned));
+}
+
 // ── cursors ──────────────────────────────────────────────────
 export async function nextCursor(env, name, len) {
   const raw = await env.WH_KV.get(`cursor:${name}`);

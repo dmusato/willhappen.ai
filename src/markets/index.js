@@ -40,3 +40,15 @@ export async function collectMarkets(env, { perSource = 60, minLiquidity } = {})
 // stuck at 92% for a month is not a story, one that swung 15 points is.
 const movement = (m) =>
   Math.abs(m.change1w ?? m.change1m ?? 0) * 3 + (50 - Math.abs(m.prob - 50));
+
+// Ask the exchange how it settled one market we track.
+export async function resolveFromExchange(env, source, externalId) {
+  const src = SOURCES[source];
+  if (!src?.fetchResolution || !externalId) return null;
+  try {
+    return await src.fetchResolution(env, externalId);
+  } catch (err) {
+    console.warn(`[markets] resolution ${externalId}:`, err?.message || err);
+    return null;
+  }
+}

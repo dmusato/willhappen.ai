@@ -75,7 +75,7 @@ src/
   pipeline/
     harvest.js           markets + news → curated, dated statements → queue
     forecast.js          question → six independent answers → record
-    resolve.js           deadline → evidence (cited) → judge → verdict
+    resolve.js           tier 1 exchange settlement · tier 2 jury · tier 3 human
     refresh.js           re-price open markets; drift is the returning hook
     score.js             Brier, skill, accuracy, calibration bins
     run.js               what one hourly slice does
@@ -91,7 +91,8 @@ src/
   social/
     index.js             orchestrator + copywriting
     postiz.js            one key, every connected channel
-    twitter.js reddit.js meta.js    direct fallbacks
+    telegram.js bluesky.js          direct, no app review needed
+    twitter.js reddit.js meta.js    direct, need an app
   store/kv.js            every KV read and write
 public/                  style.css, app.js, favicon, seed index.json
 test/                    node --test, no framework
@@ -142,11 +143,38 @@ the models are more bullish than the money.
 | `scores:log` | append-only `{id, outcome, models, market}` rows | none |
 | `leaderboard` | computed board | none |
 | `ledger:{YYYY-MM-DD}` | `{cost, calls, forecasts, resolves}` | 40d |
-| `review:queue` | verdicts the resolver wasn't confident enough to publish | none |
+| `review:queue` | verdicts the resolver would not publish on its own | none |
+| `resolve:checked` | `{id: lastCheckedAt}` — one key, not one per prediction | none |
 | `cursor:{name}` | rotation cursors (news beats) | none |
 | `votes:tally:{id}` / `votes:by:{id}:{fp}` | community vote | none / 1y |
 | `rl:*` | rate limits | 60s |
 | `social:{channel}:{id}` | posted checkpoint | none |
+
+## Resolution — read this before touching resolve.js
+
+This is the only code here that can publish a falsehood as a fact, so it is tiered and the
+tiers are not interchangeable:
+
+1. **The exchange settled it.** `market.external_id` → `fetchResolution()`. Polymarket is
+   settled when `closed === true` **and** `outcomePrices` is exactly `1`/`0` — a price of
+   0.97 is a price, not a settlement. Kalshi is `status` settled/finalized plus `result`.
+   A `disputed` entry in `umaResolutionStatuses` never auto-publishes.
+2. **A jury.** Three models from three different labs, identical evidence, no search of
+   their own, no sight of each other. Unanimous or it goes to review. Each juror must
+   declare a `basis`, and a verdict resting only on `absence_of_coverage` never publishes —
+   that is the easiest way to be confidently wrong about something that simply was not
+   covered.
+3. **A human.** Everything else, plus a public dispute link on every verdict.
+
+Two things that look like details and are not:
+
+- **Polarity.** The headline was rewritten from the market question by a model, so before a
+  settlement is applied one cheap call confirms the two still mean the same thing. Without
+  it, a curator that flipped "no change in rates" into "the Fed changes rates" would publish
+  an inverted outcome with total confidence.
+- **Re-check throttling.** `resolve:checked` exists because a market that is merely slow to
+  settle would otherwise be re-examined every run and starve newer questions. Anything that
+  changes how due work is selected has to keep that property.
 
 ## Dedupe — read this before touching harvest
 

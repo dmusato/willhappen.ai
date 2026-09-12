@@ -29,9 +29,18 @@ export async function computeLeaderboard(env) {
   const rows = [...models, consensus, market].map(finish).filter((r) => r.n > 0);
   rows.sort((a, b) => (a.brier ?? 1) - (b.brier ?? 1));
 
+  // How the outcomes themselves were decided is the board's own warrant: a
+  // score built on exchange settlements is worth more than one built on a
+  // model's reading of the news, and a reader deserves to know the mix.
+  const byMethod = rowsLog.reduce((a, r) => {
+    const m = r.method === "exchange" || r.method === "jury" ? r.method : "maintainer";
+    return { ...a, [m]: (a[m] || 0) + 1 };
+  }, {});
+
   const board = {
     generated_at: new Date().toISOString(),
     resolved: rowsLog.length,
+    resolved_by: byMethod,
     // A score means nothing over four questions; the UI greys the board out
     // until there is enough history to rank on.
     min_sample: Number(env.LEADERBOARD_MIN_SAMPLE ?? 10),

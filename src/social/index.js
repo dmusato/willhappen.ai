@@ -6,6 +6,8 @@ import { postizConfigured, listChannels, publish, uploadFromUrl } from "./postiz
 import { twitterConfigured, postTweet } from "./twitter.js";
 import { redditConfigured, postRedditLink } from "./reddit.js";
 import { facebookConfigured, instagramConfigured, postFacebook, postInstagram, igImageUrl } from "./meta.js";
+import { telegramConfigured, postTelegram } from "./telegram.js";
+import { blueskyConfigured, postBluesky } from "./bluesky.js";
 import { getIndex, getPrediction } from "../store/kv.js";
 import { horizon as horizonOf, topic as topicOf } from "../catalog.js";
 
@@ -52,17 +54,43 @@ async function viaPostiz(env, p, site, channels) {
   return publish(env, { channels, image, bodies: bodies(p, site) });
 }
 
+// Each channel is attempted independently: one platform being down or
+// rate-limited must not cost us every other platform for this prediction.
 async function viaDirect(env, p, site) {
+  const jobs = [
+    [twitterConfigured, "x", () => postTweet(env, shortCopy(p, site))],
+    [redditConfigured, "reddit", () => postRedditLink(env, { title: redditTitle(p), url: pageUrl(site, p) })],
+    [facebookConfigured, "facebook", () => postFacebook(env, { message: longCopy(p, site), link: pageUrl(site, p) })],
+    [instagramConfigured, "instagram", () => postInstagram(env, { imageUrls: [igImageUrl(site, p.id)], caption: longCopy(p, site) })],
+    [telegramConfigured, "telegram", () => postTelegram(env, {
+      text: telegramCopy(p),
+      imageUrl: cardUrl(site, p),
+      linkUrl: pageUrl(site, p),
+    })],
+    [blueskyConfigured, "bluesky", () => postBluesky(env, {
+      text: shortCopy(p, site, 290, { withUrl: false }),
+      linkUrl: pageUrl(site, p),
+      title: p.headline,
+      description: `AI consensus ${p.consensus_prob}%${typeof p.market?.prob === "number" ? ` · market ${p.market.prob}%` : ""} · resolves ${p.resolves_by}`,
+      imageUrl: cardUrl(site, p),
+    })],
+  ];
+
   const out = {};
-  if (twitterConfigured(env))   out.x = await postTweet(env, shortCopy(p, site));
-  if (redditConfigured(env))    out.reddit = await postRedditLink(env, { title: redditTitle(p), url: pageUrl(site, p) });
-  if (facebookConfigured(env))  out.facebook = await postFacebook(env, { message: longCopy(p, site), link: pageUrl(site, p) });
-  if (instagramConfigured(env)) out.instagram = await postInstagram(env, { imageUrls: [igImageUrl(site, p.id)], caption: longCopy(p, site) });
+  for (const [configured, name, send] of jobs) {
+    if (!configured(env)) continue;
+    try { out[name] = await send(); }
+    catch (err) {
+      console.error(`[social] ${name}:`, err?.message || err);
+      out[name] = { error: String(err?.message || err).slice(0, 140) };
+    }
+  }
   return out;
 }
 
 const anyDirect = (env) =>
-  twitterConfigured(env) || redditConfigured(env) || facebookConfigured(env) || instagramConfigured(env);
+  twitterConfigured(env) || redditConfigured(env) || facebookConfigured(env) ||
+  instagramConfigured(env) || telegramConfigured(env) || blueskyConfigured(env);
 
 async function pickUnposted(env, channel, max) {
   const { predictions } = await getIndex(env);
@@ -110,9 +138,9 @@ function marketLine(p) {
   return `The market says ${p.market.prob}% — the models are ${Math.abs(edge)} points ${dir} confident.`;
 }
 
-function shortCopy(p, site, limit = 280) {
+function shortCopy(p, site, limit = 280, { withUrl = true } = {}) {
   const url = pageUrl(site, p);
-  const tail = `\n\n${url}`;
+  const tail = withUrl ? `\n\n${url}` : "";
   const market = p.market && typeof p.market.prob === "number"
     ? `\n\n🤖 ${p.consensus_prob}%  vs  💰 ${p.market.prob}% (market)`
     : `\n\n🤖 ${p.consensus_prob}% — consensus of 6 frontier models`;
@@ -139,6 +167,24 @@ function longCopy(p, site) {
     pageUrl(site, p),
   ].filter((l) => l !== null).join("\n");
 }
+
+// Telegram renders a caption under the share card, so it carries the reasoning
+// the card cannot fit. HTML, and under 1024 characters.
+function telegramCopy(p) {
+  const market = typeof p.market?.prob === "number"
+    ? `\n💰 The market says <b>${p.market.prob}%</b> — a ${Math.abs(p.consensus_prob - p.market.prob)} point gap.`
+    : "";
+  const top = Object.entries(p.models || {})
+    .filter(([, m]) => typeof m.prob === "number")
+    .sort((a, b) => b[1].prob - a[1].prob);
+  const extremes = top.length >= 2
+    ? `\n\n<i>${esc(top[0][0])} is highest at ${top[0][1].prob}%, ${esc(top[top.length - 1][0])} lowest at ${top[top.length - 1][1].prob}%.</i>`
+    : "";
+
+  return `🔮 <b>${esc(p.headline)}</b>\n\n🤖 Six frontier models put this at <b>${p.consensus_prob}%</b> by ${esc(p.resolves_by)}.${market}${extremes}`;
+}
+
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
 function redditTitle(p) {
   const market = p.market && typeof p.market.prob === "number" ? ` (the market says ${p.market.prob}%)` : "";

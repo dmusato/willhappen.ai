@@ -108,6 +108,8 @@ export async function harvestMarkets(env, { want = 12 } = {}) {
       rules: m.rules || null,
       market: {
         source: m.source,
+        external_id: m.externalId,
+        question: m.question,
         prob: m.prob,
         url: m.url,
         volume_usd: m.volumeUsd,

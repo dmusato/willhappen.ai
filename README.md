@@ -40,10 +40,14 @@ stops being "is the AI confident?" and becomes "is the AI better than the crowd?
 **No model is ever shown the market price.** If it were, the edge published on every page
 would only measure how well a model can read a number out of its prompt.
 
-**Outcomes resolve themselves.** After a deadline, a search-grounded model gathers evidence
-and cites it; a second model rules on that evidence alone and never searches, so it cannot
-talk itself into a story. Confident verdicts publish automatically with their sources on the
-page; the rest wait for a human.
+**Outcomes resolve themselves, and say what they rest on.** Deciding whether something
+happened is the one place a bug becomes a falsehood on a page, so it is tiered by how good
+the evidence actually is. First the exchange: most questions come from Polymarket or Kalshi,
+and those markets settle themselves with real money and a formal dispute window — when the
+exchange has paid out, that is the answer, and no model gets a vote. Only questions with no
+market behind them go to a jury of three models from three different labs, ruling
+independently on identical cited evidence; unanimous or it does not publish. Every verdict
+names which route it took.
 
 **It is small enough to read in an evening.** One Worker, one KV namespace, one API key.
 No framework, no bundler, no build step, no database.
@@ -132,8 +136,10 @@ Everything lives in `wrangler.toml`. The defaults are tuned for the budget above
 | `FORECASTS_PER_RUN` | `2` | Questions put to the panel each hour. |
 | `MARKET_SOURCES` | `polymarket,kalshi` | Which exchanges to harvest. |
 | `MARKET_MIN_LIQUIDITY` | `5000` | Skip markets thinner than this. |
-| `RESOLVE_MIN_CONFIDENCE` | `80` | Below this a verdict waits for a human. |
-| `RESOLVE_MIN_SOURCES` | `2` | Minimum citations before auto-publishing. |
+| `RESOLVE_MIN_CONFIDENCE` | `80` | Jury mean below this waits for a human. |
+| `RESOLVE_MIN_SOURCES` | `2` | Minimum citations before a jury verdict publishes. |
+| `RESOLVE_MARKET_WAIT_DAYS` | `21` | How long to let an exchange be slow to settle. |
+| `RESOLVE_GIVE_UP_DAYS` | `120` | Retire an unresolvable question to review. |
 | `LEADERBOARD_MIN_SAMPLE` | `10` | Outcomes needed before a row is ranked. |
 
 ### Secrets
@@ -182,7 +188,7 @@ src/
   pipeline/
     harvest.js       markets + news → dated falsifiable statements
     forecast.js      one question → six independent answers → a record
-    resolve.js       deadline passed → evidence → verdict → sources
+    resolve.js       exchange settlement, else a three-model jury on cited evidence
     refresh.js       re-price open markets so drift is visible
     score.js         Brier, skill, calibration, market benchmark
     run.js           what one hourly slice actually does
@@ -206,6 +212,9 @@ Read-only endpoints are public and CORS-open — build something on top of it.
 | `GET /api/catalog` | Topics, horizons and the model roster. |
 | `GET /og/{id}.png` | The share card. Add `?v=square` for 1:1. |
 | `GET /feed.xml` | RSS. |
+
+Every record carries `verdict_method` — `exchange`, `jury` or `maintainer` — so anything
+built on this can weight an outcome by how it was decided.
 
 Sorts: `new`, `soon`, `far`, `contested`, `edge`, `confident`, `likely`, `unlikely`.
 

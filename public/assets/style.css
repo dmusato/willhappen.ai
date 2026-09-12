@@ -694,3 +694,39 @@ p { margin: 0 0 1em; }
   border-radius: var(--r-md); background: rgba(5,6,26,.6); border: 1px solid var(--hair-soft);
 }
 .firstrun code { font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); line-height: 1.7; }
+
+/* ── how a verdict was reached ────────────────────────── */
+.verdict-body { min-width: 0; }
+.verdict-how {
+  display: flex; flex-direction: column; gap: 5px;
+  margin: 14px 0; padding: 12px 14px;
+  border-radius: var(--r-md); background: rgba(0,0,0,.22);
+}
+.verdict-how b { font-size: 10px; letter-spacing: .16em; color: var(--text); }
+.verdict-how span { font-size: 13px; color: var(--text-mute); line-height: 1.55; }
+.jury { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
+.jury li {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  padding: 5px 11px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--hair-soft);
+  font-family: var(--mono); font-size: 10.5px;
+}
+.jury li { position: relative; padding-left: 22px; }
+.jury li::before {
+  content: ""; position: absolute; left: 11px; top: 50%;
+  width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
+  background: var(--c, var(--text-ghost));
+}
+.jury b { font-weight: 500; color: var(--text); }
+.jury span { color: var(--text-dim); }
+.jury em { font-style: normal; color: var(--text-ghost); }
+.verdict-origin { font-size: 13px; color: var(--text-mute); }
+.verdict-origin q { color: var(--text-dim); font-style: italic; }
+.verdict-meta a { color: var(--text-mute); text-decoration: underline; text-underline-offset: 3px; }
+.verdict-meta a:hover { color: var(--text); }
+
+.provenance {
+  max-width: var(--wide); margin: 26px auto 0; padding: 0 var(--gut);
+  font-size: 14.5px; color: var(--text-mute); line-height: 1.7;
+}
+.provenance b { color: var(--text); font-weight: 500; }

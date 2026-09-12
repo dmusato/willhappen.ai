@@ -88,3 +88,27 @@ export async function fetchOne(env, externalId) {
   if (!m) return null;
   return normalize({ series_ticker: String(m.event_ticker || "").split("-")[0], event_ticker: m.event_ticker, title: m.title, category: "" }, m);
 }
+
+export async function fetchResolution(env, externalId) {
+  const ticker = String(externalId).split(":")[1];
+  if (!ticker) return null;
+  const res = await fetch(`${API}/markets/${encodeURIComponent(ticker)}`, { headers: { accept: "application/json" } });
+  if (!res.ok) return null;
+  const m = (await res.json())?.market;
+  if (!m) return null;
+
+  const status = String(m.status || "").toLowerCase();
+  const result = String(m.result || "").toLowerCase();
+  const settled = (status === "settled" || status === "finalized") && (result === "yes" || result === "no");
+  const series = String(m.event_ticker || m.ticker || "").split("-")[0].toLowerCase();
+
+  return {
+    source: id,
+    settled,
+    outcome: settled ? result : null,
+    disputed: false,
+    question: String(m.title || "").replace(/\s{2,}/g, " ").trim(),
+    url: series ? `https://kalshi.com/markets/${series}` : "https://kalshi.com",
+    bond_usd: null,
+  };
+}
