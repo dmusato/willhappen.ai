@@ -1,9 +1,8 @@
-# Minimal CI: syntax-check Worker code on every PR. Everything else
-# (generation, deployment) runs inside Cloudflare.
-name: lint
+# The only thing GitHub Actions does here. Generation, resolution, posting and
+# deploys all live in Cloudflare — no secrets belong in this file.
+name: check
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
@@ -14,13 +13,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-      - run: |
-          for f in src/worker.js src/handlers/*.js src/generate/*.js; do
-            node --check "$f"
-          done
-      - name: Validate JSON
-        run: |
-          for f in public/data/*.json data/*.json; do
-            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
-          done
+          node-version: "22"
+      # No install step: lint and tests use only Node builtins.
+      - name: Syntax + JSON
+        run: npm run lint
+      - name: Unit tests
+        run: npm test

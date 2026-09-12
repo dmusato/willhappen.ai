@@ -1,35 +1,45 @@
-name: "Report an outcome"
-description: "Tell us a prediction resolved — with a credible source."
+name: "Dispute or report an outcome"
+description: "A verdict looks wrong, or a prediction resolved and the machine hasn't noticed."
 title: "Outcome: "
 labels: ["outcome", "verification"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Verdicts here are published automatically when the resolver is confident and has at
+        least two sources. That is fallible on purpose — the sources are printed on every
+        page so anyone can check the call. This is how you push back.
   - type: input
     id: prediction_id
     attributes:
-      label: Prediction ID
-      description: The `id` from the prediction URL (e.g. `p3` or `a1k9f4x7`).
-      placeholder: "p3"
+      label: Prediction
+      description: The full URL, or the id from it.
+      placeholder: "https://willhappen.ai/p/the-fed-cuts-rates-in-october-a1b2"
     validations:
       required: true
   - type: dropdown
     id: verdict
     attributes:
-      label: What happened?
+      label: What actually happened?
       options:
-        - "Happened ✓"
-        - "Didn't happen ✗"
-        - "Unclear"
+        - "It happened ✓"
+        - "It didn't happen ✗"
+        - "Genuinely unclear — shouldn't be resolved either way"
+        - "The question itself is broken (ambiguous, or the deadline is wrong)"
     validations:
       required: true
   - type: textarea
     id: source
     attributes:
-      label: Credible source(s)
-      description: Links to reputable reporting, official data, etc.
-      placeholder: "https://reuters.com/..."
+      label: Sources
+      description: Links a stranger can check. Reporting, official data, primary documents.
+      placeholder: "https://reuters.com/…"
     validations:
       required: true
   - type: textarea
     id: notes
     attributes:
-      label: Notes
+      label: Anything else
+      description: Especially useful if the statement is nearly true but not literally true.
+    validations:
+      required: false

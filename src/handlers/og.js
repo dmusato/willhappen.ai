@@ -56,18 +56,15 @@ export async function handleOg(request, env, ctx) {
   return new Response(svg, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=300" } });
 }
 
-// The card used for the site itself: the same furniture, a standing claim
-// instead of a forecast.
+// The card for the site itself. Deliberately not a fake prediction — reusing
+// the forecast layout meant shipping a made-up "50% AI CONSENSUS" to every
+// link preview of the home page.
 export async function handleDefaultOg(request, env, ctx) {
   const url = new URL(request.url);
-  const wantSvg = url.pathname.endsWith(".svg");
-  const svg = card({
-    headline: "Six frontier AI models forecast the news. Then we check who was right.",
-    topic: "ai", horizon: "1y", resolves_by: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
-    consensus_prob: 50, verdict: null, models: {}, market: null,
-  }, { square: url.searchParams.get("v") === "square" });
-
-  if (wantSvg) return new Response(svg, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": CACHE } });
+  const svg = siteCard();
+  if (url.pathname.endsWith(".svg")) {
+    return new Response(svg, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": CACHE } });
+  }
 
   const cache = caches.default;
   const hit = await cache.match(request);
@@ -83,6 +80,55 @@ export async function handleDefaultOg(request, env, ctx) {
     }
   } catch { /* fall through to SVG */ }
   return new Response(svg, { headers: { "content-type": "image/svg+xml; charset=utf-8", "cache-control": "public, max-age=300" } });
+}
+
+export function siteCard() {
+  const W = 1200, H = 630, pad = 72;
+  const head = fitHeadline("Six frontier AI models forecast the news. Then we go back and check who was right.", W - pad * 2, 200, [62, 54, 46]);
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Georgia, 'DejaVu Serif', 'Times New Roman', serif">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="0%" r="120%">
+      <stop offset="0" stop-color="#1e1b4b"/><stop offset="0.55" stop-color="#0a0a1f"/><stop offset="1" stop-color="#05061a"/>
+    </radialGradient>
+    <radialGradient id="b1" cx="78%" cy="12%" r="48%">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.45"/><stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b2" cx="10%" cy="86%" r="50%">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.3"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  <rect width="${W}" height="${H}" fill="url(#b1)"/>
+  <rect width="${W}" height="${H}" fill="url(#b2)"/>
+
+  <g transform="translate(${pad},64)">
+    <circle cx="17" cy="17" r="17" fill="url(#brand)"/>
+    <text x="48" y="28" font-size="34" fill="#f5f3ff">will<tspan fill="#a78bfa">happen</tspan><tspan font-size="17" fill="#a78bfa" opacity="0.7"> .ai</tspan></text>
+  </g>
+
+  <text x="${pad}" y="${240 + head.size}" font-size="${head.size}" fill="#f5f3ff">
+    ${head.lines.map((l, i) => `<tspan x="${pad}" dy="${i === 0 ? 0 : Math.round(head.size * 1.15)}">${escapeXml(l)}</tspan>`).join("")}
+  </text>
+
+  <text x="${pad}" y="216" font-family="'DejaVu Sans Mono', monospace" font-size="17" letter-spacing="4" fill="#a78bfa">
+    AI CONSENSUS · SCORED AGAINST THE MARKETS · OPEN SOURCE
+  </text>
+
+  <g transform="translate(${pad},524)">
+    ${PANEL.map((m, i) => {
+      const x = i * 172;
+      return `<circle cx="${x + 14}" cy="0" r="14" fill="${m.color}" stroke="#ffffff" stroke-opacity="0.3"/>` +
+             `<text x="${x + 38}" y="6" font-family="'DejaVu Sans Mono', monospace" font-size="16" fill="#f5f3ff" opacity="0.72">${escapeXml(m.name)}</text>`;
+    }).join("")}
+  </g>
+  <line x1="${pad}" y1="566" x2="${W - pad}" y2="566" stroke="#ffffff" stroke-opacity="0.1"/>
+  <text x="${pad}" y="598" font-family="'DejaVu Sans Mono', monospace" font-size="15" letter-spacing="2.5" fill="#f5f3ff" opacity="0.45">WILLHAPPEN.AI</text>
+</svg>`;
 }
 
 const CACHE = "public, max-age=3600, s-maxage=604800, stale-while-revalidate=604800";

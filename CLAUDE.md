@@ -1,242 +1,213 @@
 # CLAUDE.md — WillHappen.ai
 
-Brief for any Claude session (Code, web, agent) that opens this repo.
+Brief for any Claude session that opens this repo.
 
 ## What this is
 
-**WillHappen.ai** is a consensus forecasting site. A user asks a yes/no question about the future, six frontier AI models answer with a probability + reasoning, and we surface the aggregate. Predictions are archived on a public Timeline and can be shared. Outcomes are tracked ("happened ✓ / didn't ✗").
+A forecasting machine that runs itself. Hourly it harvests questions from live
+prediction markets and the news, puts each one to six frontier models through
+OpenRouter, publishes a page, and — once the deadline passes — searches for the
+outcome, cites sources, and records who was right. The models are scored against
+each other **and against the market price on the same questions**.
 
-Opensource. Repo: https://github.com/dmusato/willhappen.ai. Host: Cloudflare at https://willhappen.ai.
+Open source, MIT. Repo: https://github.com/dmusato/willhappen.ai.
+Live: https://willhappen.ai, one Cloudflare Worker.
 
 ## Non-negotiables
 
-1. **One Cloudflare project.** Workers with Static Assets — static HTML/CSS/JS + fetch handlers + scheduled cron + KV + AI bindings, one `wrangler.toml`, one deploy.
-2. **GitHub Actions does nothing outside of code.** No secrets, no cron, no deploys from Actions. Only PR lint + issue templates live on GitHub.
-3. **Stay vanilla on the client.** HTML + CSS + plain JS, no framework, no build step. The design source is React but that's a prototype medium — we re-implement.
-4. **Every prediction carries full attribution.** Which model drafted the question, when, and each evaluating model's probability + reasoning + timestamp.
-5. **Keep it lightweight.** Landing < 60KB gzipped. Mobile-first (390px ceiling).
-6. **Simple, direct code.** No premature abstraction, no frameworks "just in case".
+1. **One Cloudflare project.** Worker + Static Assets + KV. One `wrangler.toml`,
+   one deploy. No queues, no D1, no second service.
+2. **One model gateway.** Everything goes through OpenRouter
+   (`src/ai/openrouter.js`). Nothing else in the codebase calls a model API.
+3. **GitHub Actions does nothing but lint.** No secrets, no cron, no deploys.
+4. **No build step, no framework, no bundler.** Pages are server-rendered from
+   template literals; the client JS is progressive enhancement only.
+5. **Never show a model the market price.** It would make the published edge —
+   and the whole scoreboard — meaningless.
+6. **Never ship invented data.** No fabricated forecasts in the seed, no
+   placeholder model answers. An empty archive with an honest empty state is
+   correct; fake history is not.
+7. **Keep it small.** Landing under 60KB gzipped. Mobile-first.
 
 ## Architecture
 
 ```
-                         Cloudflare Worker (single project "willhappen-ai")
-                         ┌─────────────────────────────────────────────┐
-Browser ──── request ───►│ fetch():                                    │
-                         │   ├─ /api/predictions  → WH_KV              │
-                         │   ├─ /api/vote         → WH_KV              │
-                         │   ├─ /api/suggest      → GitHub Issues API  │
-                         │   ├─ /og/:id           → SVG generator      │
-                         │   ├─ /p/:id            → HTML w/ OG tags    │
-                         │   └─ *                 → ASSETS (public/)   │
-                         │                                             │
-                         │ scheduled("17 3 * * *"):                    │
-                         │   ├─ social autoposting (X, Reddit,         │
-                         │   │   Facebook, Instagram carousels)        │
-                         │   └─ Cloudflare AI Gateway                  │
-                         │        ├─ google-ai-studio/gemini-2.5-pro   │
-                         │        ├─ anthropic/claude-sonnet-4-6       │
-                         │        ├─ openai/gpt-5                      │
-                         │        ├─ grok/grok-4                       │
-                         │        ├─ workers-ai/@cf/meta/llama-...     │
-                         │        └─ deepseek/deepseek-chat            │
-                         │        → writes predictions:all to WH_KV    │
-                         └─────────────────────────────────────────────┘
+                Cloudflare Worker "willhappen-ai"
+  ┌──────────────────────────────────────────────────────────────┐
+  │ fetch()                                                      │
+  │   /                /timeline  /topics  /models  /about       │
+  │   /p/{id}          server-rendered, OG tags + JSON-LD        │
+  │   /og/{id}.png     share card (SVG → PNG via wsrv.nl)        │
+  │   /api/*           predictions · vote · suggest · catalog ·  │
+  │                    leaderboard · admin                       │
+  │   /sitemap.xml  /feed.xml                                    │
+  │   *                → ASSETS (public/)                        │
+  │                                                              │
+  │ scheduled("7 * * * *")  → pipeline/run.js                    │
+  │   harvest → forecast → resolve → refresh → score → social    │
+  └──────────────────────────────────────────────────────────────┘
 ```
+
+### Why hourly, not nightly
+
+A Worker invocation gets ~50 subrequests, **and KV operations count**. Thirty
+questions × six models does not fit in one run. `pipeline/run.js` therefore does
+a small slice each hour and rotates the heavy phases by hour (`runPlan`). Any
+change that adds per-item KV reads to the cron path has to be checked against
+that ceiling — this is why dedupe reads two whole keys instead of one key per
+question, and why the leaderboard reads an append-only `scores:log` instead of
+re-reading every resolved record.
 
 ## Directory map
 
 ```
-public/                         served by Workers Static Assets (env.ASSETS)
-  index.html                    landing: hero + ask + recent feed
-  timeline.html                 archive + rewind slider + topic×horizon matrix
-  predict.html                  client-rendered detail fallback (?id=…)
-  suggest.html                  community submission form
-  assets/style.css              liquid glass system — tokens mirror design/glass.jsx
-  assets/app.js                 fetch / render / share / vote helpers
-  assets/favicon.svg
-  data/predictions.json         SEED only; KV takes over after first request
-  data/subjects.json
-  data/horizons.json
-  _headers                      static asset cache policy
-  robots.txt
 src/
-  worker.js                     main entry: fetch() + scheduled() + /api/admin/run
-  handlers/predictions.js       GET /api/predictions
-  handlers/vote.js              GET|POST /api/vote  → KV
-  handlers/suggest.js           POST /api/suggest   → GH Issues
-  handlers/og.js                GET /og/:id         → SVG 1200×630
-  generate/generate.js          nightly batch — draft + evaluate + merge
-  generate/providers.js         Cloudflare AI Gateway adapter
-  generate/topics.js            30 topics × 9 horizons catalog
-  social/index.js               autoposting orchestrator (KV checkpoints)
-  social/twitter.js             X — OAuth 1.0a, POST /2/tweets
-  social/reddit.js              Reddit — script app, link submit
-  social/meta.js                Facebook Page + Instagram carousels (Graph API)
-wrangler.toml                   one config for the whole project
-package.json                    wrangler devDep + scripts
-.github/ISSUE_TEMPLATE/         suggest + outcome issue templates
-.github/workflows/lint.yml      syntax check on PRs (no secrets, no deploys)
-CLAUDE.md                       (you are here)
-README.md
-LICENSE
+  worker.js              routing + page rendering + scheduled()
+  catalog.js             topics, horizons, news beats
+  util.js                slugify, fingerprint, median, pool
+  ai/
+    openrouter.js        the only module that talks to a model
+    roster.js            PANEL (six labs) + JOBS (search, reason)
+  markets/
+    index.js             source registry + cross-source dedupe/ranking
+    polymarket.js        Gamma API
+    kalshi.js            /events with nested markets
+  pipeline/
+    harvest.js           markets + news → curated, dated statements → queue
+    forecast.js          question → six independent answers → record
+    resolve.js           deadline → evidence (cited) → judge → verdict
+    refresh.js           re-price open markets; drift is the returning hook
+    score.js             Brier, skill, accuracy, calibration bins
+    run.js               what one hourly slice does
+  render/
+    shell.js             document shell, nav, footer
+    components.js        dial, rows, model list, market panel, verdict
+    pages.js             one function per route
+  handlers/
+    http.js              json(), preflight(), requireAdmin()
+    predictions.js       listing + filters + sorts, seed fallback
+    og.js                share cards, both variants
+    meta.js sitemap.js feed.js vote.js suggest.js admin.js
+  social/
+    index.js             orchestrator + copywriting
+    postiz.js            one key, every connected channel
+    twitter.js reddit.js meta.js    direct fallbacks
+  store/kv.js            every KV read and write
+public/                  style.css, app.js, favicon, seed index.json
+test/                    node --test, no framework
+scripts/                 lint.mjs, markets.mjs
 ```
-
-## Design tokens (mirror `design/glass.jsx`)
-
-```
---ink:#05061a  --ink2:#0a0a1f  --indigo:#1e1b4b
---lilac:#a78bfa  --sky:#38bdf8  --mint:#6ee7b7  --rose:#f472b6
---text:#f5f3ff  --text-dim:rgba(245,243,255,.72)
-font-display: "Instrument Serif", serif
-font-sans:    "Geist", system-ui, sans-serif
-font-mono:    "JetBrains Mono", ui-monospace, monospace
-```
-
-Aurora: two soft radial blobs (lilac 72%/18%, sky 15%/75%) over
-`radial-gradient(ellipse at 50% 0%, #1e1b4b, #0a0a1f 55%, #05061a)`,
-`mix-blend-mode: screen`. No 3D tilt — only subtle hover lift + aurora
-mouse-parallax (disabled on mobile and `prefers-reduced-motion`).
-
-Glass card: `background: rgba(255,255,255,.05)` + `backdrop-filter: blur(20px)
-saturate(160%)` + 0.5px hairline + inset top highlight.
 
 ## Data shape
 
-One file per prediction. The repo holds the seed under
-`public/data/predictions/{id}.json`; live state in KV mirrors the same
-layout (`prediction:{id}` per record + a compact `predictions:index`).
-
-Full record (`prediction:{id}` / `public/data/predictions/p001.json`):
+`prediction:{id}` in KV, where `id` is a slug (the URL is the headline):
 
 ```json
 {
-  "id": "a1k9f4x7",
-  "question_generated_by": "anthropic/claude-sonnet-4-6",
-  "question_generated_at": "2026-04-19T03:12:00Z",
-  "source": "auto",                 // "auto" | "community" | "seed"
-  "topic": "ai",
-  "horizon": "5y",
-  "created_at": "2026-04-19",
-  "resolves_by": "2031-04-19",
-  "headline": "A major frontier lab ships a multi-agent coding product",
-  "consensus_prob": 41,
+  "id": "the-fed-cuts-rates-in-october-a1b2",
+  "v": 2,
+  "fingerprint": "a1b2c3d4",
+  "headline": "The Fed cuts its benchmark rate at the October 2026 meeting",
+  "context": "Why this is live now and what counts as it happening.",
+  "topic": "markets", "horizon": "1m",
+  "source": "polymarket", "source_url": "https://polymarket.com/…",
+  "rules": "Verbatim resolution criteria from the exchange.",
+  "created_at": "2026-09-12", "resolves_by": "2026-10-29",
+  "question_generated_by": "polymarket", "question_generated_at": "…",
+  "consensus_prob": 63, "spread": 24, "answered": 6,
   "models": {
-    "gemini":   { "provider": "google-ai-studio/gemini-2.5-pro",
-                  "prob": 38, "note": "...", "queried_at": "..." },
-    "claude":   { ... },
-    "gpt":      { ... },
-    "grok":     { ... },
-    "llama":    { ... },
-    "deepseek": { ... }
+    "claude": { "model": "anthropic/claude-sonnet-5", "prob": 71,
+                "note": "…", "queried_at": "…", "ms": 2100 }
   },
-  "verdict": null,                  // true | false | null
-  "verdict_source": null,           // "maintainer" | "community" | null
-  "verdict_note": null
+  "market": { "source": "polymarket", "external_id": "polymarket:123",
+              "prob": 79, "prob_at_forecast": 71, "drift": 8,
+              "change_1w": -4, "volume_usd": 4200000, "checked_at": "…" },
+  "edge": -16,
+  "verdict": null, "verdict_source": null, "verdict_at": null,
+  "verdict_note": null, "verdict_confidence": null, "sources": []
 }
 ```
 
-Index entry (`predictions:index.predictions[]` / `public/data/index.json`):
-
-```json
-{ "id": "p001", "headline": "...", "topic": "ai", "horizon": "5y",
-  "created_at": "2026-04-19", "resolves_by": "2031-04-19",
-  "consensus_prob": 41, "verdict": null,
-  "question_generated_at": "2026-04-19T03:12:00Z" }
-```
-
-Listing endpoints (`/api/predictions`, timeline, recent feed) serve the
-index — ~10 KB for 40 entries. Detail pages and the OG image fetch a
-single record (~1.2 KB).
+`consensus_prob` is the **median**, not the mean — one outlier at 2% should not
+drag a panel that otherwise agrees. `edge` is `consensus − market`, positive when
+the models are more bullish than the money.
 
 ## KV keyspace
 
-| Key                       | Value                              | TTL |
-|---------------------------|------------------------------------|-----|
-| `prediction:{id}`         | full record JSON                   | none |
-| `predictions:index`       | compact listing, sorted newest-first | none |
-| `votes:tally:{id}`        | `{ yes, no }`                      | none |
-| `votes:by:{id}:{fp}`      | `"yes"` \| `"no"`                  | 1y |
-| `rl:{id}:{fp}`            | `"1"` (vote-change rate-limit)     | 60s |
-| `rl:suggest:{ip}`         | `"1"` (suggest rate-limit)         | 60s |
-| `social:{platform}:{id}`  | `{ at, ... }` posted checkpoint    | none |
+| Key | Value | TTL |
+|---|---|---|
+| `prediction:{id}` | full record | none |
+| `predictions:index` | compact rows, newest first | none |
+| `queue:questions` | harvested, awaiting a forecast | none |
+| `scores:log` | append-only `{id, outcome, models, market}` rows | none |
+| `leaderboard` | computed board | none |
+| `ledger:{YYYY-MM-DD}` | `{cost, calls, forecasts, resolves}` | 40d |
+| `review:queue` | verdicts the resolver wasn't confident enough to publish | none |
+| `cursor:{name}` | rotation cursors (news beats) | none |
+| `votes:tally:{id}` / `votes:by:{id}:{fp}` | community vote | none / 1y |
+| `rl:*` | rate limits | 60s |
+| `social:{channel}:{id}` | posted checkpoint | none |
 
-## Social autoposting
+## Dedupe — read this before touching harvest
 
-Runs inside `scheduled()` right after generation (`src/social/index.js`).
-Each platform activates only when its secrets exist — no code changes needed.
-Checkpoints in KV guarantee each prediction is posted at most once per
-platform; failures retry next night. Instagram posts a nightly digest
-carousel (2–10 slides, OG cards rasterized to JPEG via wsrv.nl).
+A question changes shape as it moves through the pipeline, and dedupe has to
+survive all of it. `knownFingerprints()` builds a set from **three** keys:
 
-Manual trigger:
-`curl -X POST https://willhappen.ai/api/admin/run -H 'authorization: Bearer $ADMIN_TOKEN' -d '{"generate":true,"social":true}'`
+- `p.fp` — fingerprint of the original source question, stored on the record
+- `fingerprint(p.headline)` — fingerprint of the curated headline
+- `p.market_id` — the exchange's own id
 
-## Deploy (one-time setup)
-
-```bash
-npm install
-wrangler kv namespace create WH_KV          # copy id → wrangler.toml
-wrangler secret put AI_GATEWAY_TOKEN
-wrangler secret put OPENAI_API_KEY
-wrangler secret put ANTHROPIC_API_KEY
-wrangler secret put GOOGLE_AI_STUDIO_API_KEY
-wrangler secret put XAI_API_KEY
-wrangler secret put DEEPSEEK_API_KEY
-wrangler secret put GH_TOKEN                # scope: public_repo
-wrangler deploy
-```
-
-Point `willhappen.ai` at the worker via Cloudflare DNS + a custom domain
-route (see `wrangler.toml [routes]`).
-
-## Dev commands
-
-| Command | Effect |
-|---|---|
-| `npm run dev` | local worker + static assets, scheduled() exposed at `/__scheduled` |
-| `npm run dev:fresh` | same but wipes local KV first |
-| `npm run cron:trigger` | hit `/__scheduled?cron=...` on the running local worker |
-| `npm run backfill` | regenerate `public/data/predictions.json` from `scripts/backfill.mjs` |
-| `npm run deploy` | `wrangler deploy` |
-| `npm run tail` | live logs from production worker |
-| `npm run kv:seed` | one-off: load `public/data/predictions.json` into prod KV |
-| `npm run lint` | node --check every JS file |
-
-### Local end-to-end test without keys
-
-Set `MOCK_LLM=1` in `.dev.vars` (gitignored). `src/generate/providers.js`
-short-circuits to a deterministic synthetic response in mock mode, so the
-full cron cycle (draft → 6-model evaluation → consensus → KV write →
-social orchestrator) runs without any provider keys. Drop `MOCK_LLM`
-from `.dev.vars` once real keys are set to call the live AI Gateway.
+Miss any one and the same market is re-queued every hour. The curated headline
+is also re-checked after curation, because two exchanges list the same event
+with different wording. `normalizeQuestion()` strips filler, years and plurals
+but deliberately keeps word order — "A beats B" is not "B beats A".
 
 ## Common tasks
 
-### Mark an outcome resolved
-Edit `public/data/predictions/{id}.json` — set `verdict`, `verdict_source`,
-`verdict_note` — then push and update KV:
+**Change the panel** — edit `PANEL` in `src/ai/roster.js`. Nothing else
+hardcodes a model key; UI colours, share cards and the scoreboard all read it.
+
+**Add a topic or horizon** — `src/catalog.js`. Topic hues feed the UI directly.
+
+**Add an exchange** — a file in `src/markets/` exporting `id`, `label`,
+`fetchMarkets(env, opts)` and `fetchOne(env, externalId)`, plus one line in
+`SOURCES`. Match the normalized shape; `npm run markets` shows what it yields.
+
+**Publish a verdict by hand**
 ```bash
-wrangler kv key put --binding=WH_KV "prediction:{id}" --path=public/data/predictions/{id}.json
-# and refresh the index so it shows the ✓ / ✗ chip:
-wrangler kv key delete --binding=WH_KV "predictions:index"
-# next /api/predictions request re-seeds the index from public/data/index.json
-# (run `npm run backfill` first if you want the index to reflect the new verdict)
+curl -X POST $SITE/api/admin/verdict -H "authorization: Bearer $ADMIN_TOKEN" \
+  -d '{"id":"…","verdict":true,"note":"source says …"}'
 ```
 
-### Add a topic
-Edit `src/generate/topics.js` + `public/data/subjects.json`.
+**See what's pending review** — `GET /api/admin/review`.
 
-### Add a horizon
-Edit `src/generate/topics.js` + `public/data/horizons.json`.
+**Rebuild the scoreboard from scratch** — `POST /api/admin/rebuild-scores`.
+Expensive in KV reads, which is why it is admin-only and off the cron path.
 
-### Change the model roster
-Edit `src/generate/providers.js`. Keep the six keys (`gemini`, `claude`, `gpt`, `grok`, `llama`, `deepseek`) or update the CSS dot selectors in `public/assets/style.css`.
+## Dev
+
+| Command | Effect |
+|---|---|
+| `npm run dev` | local Worker; put `MOCK_LLM=1` in `.dev.vars` to run keyless |
+| `npm run dev:fresh` | same, wiping local KV first |
+| `npm run markets` | print what the exchanges would yield right now |
+| `npm test` | unit tests |
+| `npm run lint` | syntax + JSON check, zero dependencies |
+| `npm run deploy` / `npm run tail` | ship / watch production |
+
+`MOCK_LLM=1` returns deterministic synthetic answers from `openrouter.js`, so the
+whole loop runs offline. **Mocks must mirror the real schema exactly** — an early
+version omitted the `keep` and `ref` fields and the entire harvest silently
+no-opped.
 
 ## Style rules
 
-- Vanilla everywhere. If a new dep feels justified, first try to solve it in 20 lines of plain JS.
-- Don't add comments for what the code already says. Only `// why`.
-- Every new prediction **must** pass through the attribution schema above.
-- No framework runtime on the client. No bundler.
-- Don't move secrets or cron to GitHub Actions — they live in Cloudflare.
+- Vanilla everywhere. If a dependency feels justified, try twenty lines of plain
+  JS first.
+- Comment the *why*, never the *what*. If the code already says it, delete the
+  comment.
+- Prose in the UI is part of the product. Say what a number means, not just the
+  number: "the models are sharply more confident than traders risking real
+  money" beats "edge: +41".
+- State limits plainly rather than hedging everywhere. `/about` is the contract
+  with the reader — keep it accurate.
