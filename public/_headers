@@ -5,12 +5,9 @@
   Cache-Control: public, max-age=300, stale-while-revalidate=86400
   Access-Control-Allow-Origin: *
 
-/p/*
-  Cache-Control: public, max-age=600, stale-while-revalidate=86400
-
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

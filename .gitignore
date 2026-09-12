@@ -1,16 +1,15 @@
-.env
-.env.*
-!.env.example
-__pycache__/
-*.pyc
-.venv/
-venv/
 node_modules/
-.DS_Store
 .wrangler/
 dist/
 build/
+
+# local secrets — never commit
+.dev.vars
+.env
+.env.*
+!.env.example
+
+.DS_Store
 .idea/
 .vscode/
 *.log
-.dev.vars

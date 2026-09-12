@@ -1,56 +1,57 @@
 // /api/vote
-//   GET  ?id=p1            → { yes, no, total }
-//   POST { id, verdict, fp, prev? }  → records vote, returns new tallies
-// One effective vote per fingerprint per prediction.
+//   GET  ?id=…                      → { yes, no, total }
+//   POST { id, verdict, fp }        → records the vote, returns new tallies
+//
+// The crowd's opinion, kept deliberately separate from both the model consensus
+// and the resolved verdict. One effective vote per browser per prediction.
+
+import { json } from "./http.js";
 
 const VALID = new Set(["yes", "no"]);
+const ID_RE = /^[a-z0-9][a-z0-9-]{1,90}$/;
+const YEAR = 365 * 86_400;
 
 const tallyKey = (id) => `votes:tally:${id}`;
-const userKey  = (id, fp) => `votes:by:${id}:${fp}`;
+const userKey = (id, fp) => `votes:by:${id}:${fp}`;
 
 export async function handleVote(request, env) {
   const url = new URL(request.url);
+
   if (request.method === "GET") {
-    const id = url.searchParams.get("id");
-    if (!id) return json({ error: "missing id" }, 400);
+    const id = url.searchParams.get("id") || "";
+    if (!ID_RE.test(id)) return json({ error: "bad_id" }, 400);
     const t = (await env.WH_KV.get(tallyKey(id), "json")) || { yes: 0, no: 0 };
-    return json({ ...t, total: (t.yes || 0) + (t.no || 0) });
+    return json({ yes: t.yes || 0, no: t.no || 0, total: (t.yes || 0) + (t.no || 0) });
   }
 
-  if (request.method !== "POST") return new Response("method not allowed", { status: 405 });
+  if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
-  const body = await request.json().catch(() => ({}));
-  const { id, verdict, fp, prev } = body || {};
-  if (!id || !VALID.has(verdict) || !fp || fp.length < 6) {
-    return json({ error: "bad request" }, 400);
-  }
+  const { id, verdict, fp } = (await request.json().catch(() => ({}))) || {};
+  if (!ID_RE.test(String(id || ""))) return json({ error: "bad_id" }, 400);
+  if (!VALID.has(verdict)) return json({ error: "bad_verdict" }, 400);
+  if (typeof fp !== "string" || fp.length < 8 || fp.length > 64) return json({ error: "bad_fingerprint" }, 400);
 
-  const prior = await env.WH_KV.get(userKey(id, fp));
-  const tally = (await env.WH_KV.get(tallyKey(id), "json")) || { yes: 0, no: 0 };
+  const [prior, stored] = await Promise.all([
+    env.WH_KV.get(userKey(id, fp)),
+    env.WH_KV.get(tallyKey(id), "json"),
+  ]);
+  const tally = { yes: stored?.yes || 0, no: stored?.no || 0 };
 
-  if (prior === verdict) {
-    return json({ ...tally, total: tally.yes + tally.no, unchanged: true });
-  }
+  if (prior === verdict) return json({ ...tally, total: tally.yes + tally.no, unchanged: true });
 
-  // Allow changing a vote at most once per minute (KV minimum TTL).
+  // Changing your mind is allowed, but not in a loop — KV's floor TTL is 60s.
   if (prior) {
-    const rlKey = `rl:${id}:${fp}`;
-    if (await env.WH_KV.get(rlKey)) return json({ error: "rate_limited" }, 429);
-    await env.WH_KV.put(rlKey, "1", { expirationTtl: 60 });
+    const rl = `rl:${id}:${fp}`;
+    if (await env.WH_KV.get(rl)) return json({ error: "rate_limited" }, 429);
+    await env.WH_KV.put(rl, "1", { expirationTtl: 60 });
+    if (VALID.has(prior)) tally[prior] = Math.max(0, tally[prior] - 1);
   }
-  if (prior && VALID.has(prior)) tally[prior] = Math.max(0, (tally[prior] || 0) - 1);
-  tally[verdict] = (tally[verdict] || 0) + 1;
+  tally[verdict] += 1;
 
   await Promise.all([
-    env.WH_KV.put(userKey(id, fp), verdict, { expirationTtl: 60 * 60 * 24 * 365 }),
+    env.WH_KV.put(userKey(id, fp), verdict, { expirationTtl: YEAR }),
     env.WH_KV.put(tallyKey(id), JSON.stringify(tally)),
   ]);
 
   return json({ ...tally, total: tally.yes + tally.no });
 }
-
-const json = (d, s = 200) =>
-  new Response(JSON.stringify(d), {
-    status: s,
-    headers: { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*" },
-  });

@@ -1,10 +1,16 @@
-# Single Cloudflare project: static assets + API + cron generator + KV + AI.
-# Deploy:  wrangler deploy
-# Secrets: wrangler secret put <NAME>
+# WillHappen.ai — the entire project.
+#
+#   one Worker · one KV namespace · one OpenRouter key · no build step
+#
+# First run:
+#   npm install
+#   npx wrangler kv namespace create WH_KV     # paste the id below
+#   npx wrangler secret put OPENROUTER_API_KEY
+#   npx wrangler deploy
 
 name = "willhappen-ai"
 main = "src/worker.js"
-compatibility_date = "2025-11-01"
+compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 workers_dev = true
@@ -16,42 +22,60 @@ routes = [
 [assets]
 directory = "./public"
 binding   = "ASSETS"
-not_found_handling = "404-page"
+# Pages are rendered by the Worker; public/ only holds CSS, JS and seed JSON,
+# none of which collide with a page route. Anything unmatched falls through.
+not_found_handling = "none"
 
 [[kv_namespaces]]
 binding = "WH_KV"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
-# create once:  wrangler kv namespace create WH_KV
-
-[ai]
-binding = "AI"   # Workers AI — used for Llama inference
 
 [triggers]
-crons = ["17 3 * * *"]   # nightly 03:17 UTC — generate fresh predictions
-
-[vars]
-AI_GATEWAY_ACCOUNT_ID = "REPLACE_WITH_CF_ACCOUNT_ID"
-AI_GATEWAY_ID         = "willhappen"
-REPO                  = "dmusato/willhappen.ai"
-SITE_URL              = "https://willhappen.ai"
-# social targets (non-secret ids; leave empty to disable a platform)
-REDDIT_SUBREDDIT      = ""
-FB_PAGE_ID            = ""
-IG_USER_ID            = ""
+# Hourly, not nightly. A Worker invocation gets ~50 subrequests and the project
+# has a daily budget, so the work is spread into small slices — which also means
+# pages publish through the day instead of all at once.
+crons = ["7 * * * *"]
 
 [observability]
 enabled = true
 
-# Secrets (set via `wrangler secret put <NAME>`):
-#   AI_GATEWAY_TOKEN         - AI Gateway bearer
-#   OPENAI_API_KEY           - openai/* provider
-#   ANTHROPIC_API_KEY        - anthropic/* provider
-#   GOOGLE_AI_STUDIO_API_KEY - google-ai-studio/* provider
-#   XAI_API_KEY              - grok/* provider
-#   DEEPSEEK_API_KEY         - deepseek/* provider
-#   GH_TOKEN                 - creating suggestion issues
-#   ADMIN_TOKEN              - bearer for POST /api/admin/run
-# Social (each platform optional — skipped when its secrets are absent):
-#   TW_API_KEY / TW_API_SECRET / TW_ACCESS_TOKEN / TW_ACCESS_SECRET  - X (OAuth 1.0a)
+[vars]
+SITE_URL = "https://willhappen.ai"
+REPO     = "dmusato/willhappen.ai"
+
+# ── how much it publishes, and what that costs ──────────────
+DAILY_QUESTIONS    = "30"    # forecasts per UTC day (0 = no cap)
+DAILY_BUDGET_USD   = "0.70"  # hard stop, measured against OpenRouter's reported cost
+FORECASTS_PER_RUN  = "2"
+RESOLVES_PER_RUN   = "2"
+REFRESH_PER_RUN    = "6"
+SOCIAL_PER_RUN     = "2"
+QUEUE_LOW_WATER    = "12"
+
+# ── question sources ────────────────────────────────────────
+MARKET_SOURCES        = "polymarket,kalshi"
+MARKET_MIN_LIQUIDITY  = "5000"
+
+# ── auto-resolution ─────────────────────────────────────────
+# Below these thresholds a verdict is held for a human instead of published.
+RESOLVE_MIN_CONFIDENCE = "80"
+RESOLVE_MIN_SOURCES    = "2"
+RESOLVE_GRACE_DAYS     = "1"
+LEADERBOARD_MIN_SAMPLE = "10"
+
+# ── social (all optional) ───────────────────────────────────
+# POSTIZ_API_URL = "https://your-postiz/api/public/v1"   # self-hosted Postiz
+# POSTIZ_SETTINGS = '{"reddit":{"subreddit":["yoursub"]},"pinterest":{"board":"board-id"}}'
+REDDIT_SUBREDDIT = ""
+FB_PAGE_ID       = ""
+IG_USER_ID       = ""
+
+# ── secrets (wrangler secret put NAME) ──────────────────────
+#   OPENROUTER_API_KEY   required — every model call
+#   ADMIN_TOKEN          required for /api/admin/*
+#   GH_TOKEN             optional — /suggest opens GitHub issues (scope: public_repo)
+#   POSTIZ_API_KEY       optional — posts to every channel connected in Postiz
+# Direct social, only if you skip Postiz:
+#   TW_API_KEY / TW_API_SECRET / TW_ACCESS_TOKEN / TW_ACCESS_SECRET
 #   REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET / REDDIT_USERNAME / REDDIT_PASSWORD
-#   FB_PAGE_TOKEN            - long-lived Page token (also serves Instagram)
+#   FB_PAGE_TOKEN

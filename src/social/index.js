@@ -1,132 +1,153 @@
-// Social posting orchestrator. Runs after nightly generation.
-//
-// Checkpoints live in KV — `social:{platform}:{prediction_id}` — so a partial
-// failure (one platform down) retries only that platform on the next run.
-// Platforms without secrets are skipped silently: configure once, it just works.
+// Social distribution. Postiz when it is configured (one key, every network);
+// otherwise the direct per-network adapters. Either way a prediction is posted
+// at most once — the checkpoint key is the contract.
 
+import { postizConfigured, listChannels, publish, uploadFromUrl } from "./postiz.js";
 import { twitterConfigured, postTweet } from "./twitter.js";
 import { redditConfigured, postRedditLink } from "./reddit.js";
 import { facebookConfigured, instagramConfigured, postFacebook, postInstagram, igImageUrl } from "./meta.js";
+import { getIndex, getPrediction } from "../store/kv.js";
+import { horizon as horizonOf, topic as topicOf } from "../catalog.js";
 
-const MAX_PER_RUN = 4;        // per platform, per night
-const FRESH_DAYS = 2;         // only post predictions drafted in the last N days
+const FRESH_HOURS = 36;
 
-export async function runSocialPosting(env) {
-  const site = env.SITE_URL || "https://willhappen.ai";
-  const indexDoc = await env.WH_KV.get("predictions:index", "json");
-  const idx = indexDoc?.predictions || [];
-  if (!idx.length) return;
+export async function runSocial(env, { max = 2 } = {}) {
+  const site = (env.SITE_URL || "https://willhappen.ai").replace(/\/$/, "");
+  const usePostiz = postizConfigured(env);
+  if (!usePostiz && !anyDirect(env)) return { skipped: "no_social_configured" };
 
-  const cutoff = Date.now() - FRESH_DAYS * 86400_000;
-  const recentIds = idx
-    .filter((p) => p.question_generated_at && new Date(p.question_generated_at).getTime() > cutoff)
-    .sort((a, b) => (b.question_generated_at || "").localeCompare(a.question_generated_at || ""))
-    .map((p) => p.id);
+  const channel = usePostiz ? "postiz" : "direct";
+  const fresh = await pickUnposted(env, channel, max);
+  if (!fresh.length) return { posted: 0, reason: "nothing_fresh" };
 
-  if (!recentIds.length) {
-    console.log("[social] nothing fresh to post");
-    return;
+  let channels = [];
+  if (usePostiz) {
+    channels = await listChannels(env);
+    if (!channels.length) return { posted: 0, reason: "no_channels_connected" };
   }
 
-  const fresh = [];
-  for (const id of recentIds) {
-    const full = await env.WH_KV.get(`prediction:${id}`, "json");
-    if (full) fresh.push(full);
-  }
-  if (!fresh.length) {
-    console.log("[social] no full records resolved for fresh ids");
-    return;
-  }
-
-  const results = {};
-  if (twitterConfigured(env))   results.twitter   = await postEach(env, "twitter", fresh, (p) => postTweet(env, tweetText(p, site)));
-  if (redditConfigured(env))    results.reddit    = await postEach(env, "reddit", fresh, (p) => postRedditLink(env, { title: redditTitle(p), url: predUrl(p, site) }));
-  if (facebookConfigured(env))  results.facebook  = await postEach(env, "facebook", fresh, (p) => postFacebook(env, { message: longText(p, site), link: predUrl(p, site) }));
-  if (instagramConfigured(env)) results.instagram = await postInstagramDigest(env, fresh, site);
-
-  console.log("[social] done:", JSON.stringify(results));
-  return results;
-}
-
-async function postEach(env, platform, fresh, send) {
-  let posted = 0, skipped = 0, failed = 0;
+  const results = [];
   for (const p of fresh) {
-    if (posted >= MAX_PER_RUN) break;
-    const key = `social:${platform}:${p.id}`;
-    if (await env.WH_KV.get(key)) { skipped++; continue; }
     try {
-      const r = await send(p);
-      await env.WH_KV.put(key, JSON.stringify({ at: new Date().toISOString(), ...r }));
-      posted++;
-      console.log(`[social] ${platform} ← ${p.id}`);
+      const out = usePostiz ? await viaPostiz(env, p, site, channels) : await viaDirect(env, p, site);
+      await env.WH_KV.put(`social:${channel}:${p.id}`, JSON.stringify({ at: new Date().toISOString(), ...out }));
+      results.push({ id: p.id, ...out });
     } catch (err) {
-      failed++;
-      console.error(`[social] ${platform} ${p.id} failed:`, err?.message || err);
+      console.error(`[social] ${p.id}:`, err?.message || err);
+      results.push({ id: p.id, error: String(err?.message || err).slice(0, 160) });
     }
   }
-  return { posted, skipped, failed };
+  return { posted: results.filter((r) => !r.error).length, via: channel, results };
 }
 
-// Instagram is a daily digest: one carousel covering the night's fresh
-// predictions (2–10 slides), or a single image if there's only one.
-async function postInstagramDigest(env, fresh, site) {
-  const unposted = [];
-  for (const p of fresh) {
-    if (unposted.length >= 10) break;
-    if (!(await env.WH_KV.get(`social:instagram:${p.id}`))) unposted.push(p);
-  }
-  if (!unposted.length) return { posted: 0, skipped: fresh.length, failed: 0 };
-
+async function viaPostiz(env, p, site, channels) {
+  let image = null;
+  const needsImage = channels.some((c) => /instagram|pinterest|tiktok/.test(c.identifier));
   try {
-    const imageUrls = unposted.map((p) => igImageUrl(site, p.id));
-    const r = await postInstagram(env, { imageUrls, caption: igCaption(unposted, site) });
-    const now = new Date().toISOString();
-    await Promise.all(unposted.map((p) =>
-      env.WH_KV.put(`social:instagram:${p.id}`, JSON.stringify({ at: now, id: r.id }))));
-    console.log(`[social] instagram ← ${unposted.length} slide(s)`);
-    return { posted: unposted.length, skipped: 0, failed: 0 };
+    image = await uploadFromUrl(env, cardUrl(site, p, needsImage));
   } catch (err) {
-    console.error("[social] instagram failed:", err?.message || err);
-    return { posted: 0, skipped: 0, failed: unposted.length };
+    // A failed upload must not block the text post everywhere else.
+    console.warn(`[social] card upload failed for ${p.id}:`, err?.message || err);
   }
+  return publish(env, { channels, image, bodies: bodies(p, site) });
 }
 
-// ── copywriting ─────────────────────────────────────────────
-const predUrl = (p, site) => `${site}/p/${p.id}`;
-
-function tweetText(p, site) {
-  const head = p.headline.length > 180 ? p.headline.slice(0, 177) + "…" : p.headline;
-  return `🔮 ${head}\n\n${p.consensus_prob}% — consensus of 6 frontier AI models · resolves by ${p.resolves_by}\n\n${predUrl(p, site)}`;
+async function viaDirect(env, p, site) {
+  const out = {};
+  if (twitterConfigured(env))   out.x = await postTweet(env, shortCopy(p, site));
+  if (redditConfigured(env))    out.reddit = await postRedditLink(env, { title: redditTitle(p), url: pageUrl(site, p) });
+  if (facebookConfigured(env))  out.facebook = await postFacebook(env, { message: longCopy(p, site), link: pageUrl(site, p) });
+  if (instagramConfigured(env)) out.instagram = await postInstagram(env, { imageUrls: [igImageUrl(site, p.id)], caption: longCopy(p, site) });
+  return out;
 }
 
-function redditTitle(p) {
-  return `${p.headline} — ${p.consensus_prob}% consensus from 6 AI models (Gemini, Claude, GPT, Grok, Llama, DeepSeek)`;
+const anyDirect = (env) =>
+  twitterConfigured(env) || redditConfigured(env) || facebookConfigured(env) || instagramConfigured(env);
+
+async function pickUnposted(env, channel, max) {
+  const { predictions } = await getIndex(env);
+  const cutoff = Date.now() - FRESH_HOURS * 3_600_000;
+  const candidates = predictions
+    .filter((p) => Date.parse(p.question_generated_at || p.created_at) > cutoff)
+    // Lead with the pages worth clicking: where the panel and the money disagree.
+    .sort((a, b) => Math.abs(b.edge ?? 0) - Math.abs(a.edge ?? 0))
+    .slice(0, max * 4);
+
+  const out = [];
+  for (const row of candidates) {
+    if (out.length >= max) break;
+    if (await env.WH_KV.get(`social:${channel}:${row.id}`)) continue;
+    const full = await getPrediction(env, row.id);
+    if (full) out.push(full);
+  }
+  return out;
 }
 
-function longText(p, site) {
+// ── copy ────────────────────────────────────────────────────
+const pageUrl = (site, p) => `${site}/p/${p.id}`;
+const cardUrl = (site, p, square) => `${site}/og/${p.id}.png${square ? "?v=square" : ""}`;
+
+function bodies(p, site) {
+  return {
+    default: longCopy(p, site),
+    x: shortCopy(p, site),
+    bluesky: shortCopy(p, site, 290),
+    mastodon: longCopy(p, site).slice(0, 480),
+    threads: longCopy(p, site).slice(0, 480),
+    instagram: `${longCopy(p, site)}\n\n${hashtags(p)}`,
+    "instagram-standalone": `${longCopy(p, site)}\n\n${hashtags(p)}`,
+    pinterest: `${p.headline} — ${p.consensus_prob}% consensus from six frontier AI models. ${pageUrl(site, p)}`,
+    reddit: longCopy(p, site),
+    telegram: longCopy(p, site),
+  };
+}
+
+function marketLine(p) {
+  if (!p.market || typeof p.market.prob !== "number") return null;
+  const edge = p.consensus_prob - p.market.prob;
+  if (edge === 0) return `The market agrees exactly: ${p.market.prob}%.`;
+  const dir = edge > 0 ? "more" : "less";
+  return `The market says ${p.market.prob}% — the models are ${Math.abs(edge)} points ${dir} confident.`;
+}
+
+function shortCopy(p, site, limit = 280) {
+  const url = pageUrl(site, p);
+  const tail = `\n\n${url}`;
+  const market = p.market && typeof p.market.prob === "number"
+    ? `\n\n🤖 ${p.consensus_prob}%  vs  💰 ${p.market.prob}% (market)`
+    : `\n\n🤖 ${p.consensus_prob}% — consensus of 6 frontier models`;
+  const room = limit - market.length - tail.length - 2;
+  const head = p.headline.length > room ? `${p.headline.slice(0, Math.max(0, room - 1))}…` : p.headline;
+  return `${head}${market}${tail}`;
+}
+
+function longCopy(p, site) {
   const lines = Object.entries(p.models || {})
     .filter(([, m]) => typeof m.prob === "number")
-    .map(([k, m]) => `• ${k}: ${m.prob}% — ${m.note}`);
+    .sort((a, b) => b[1].prob - a[1].prob)
+    .map(([k, m]) => `· ${k}: ${m.prob}%${m.note ? ` — ${m.note}` : ""}`);
+
   return [
     `🔮 ${p.headline}`,
     ``,
-    `Consensus: ${p.consensus_prob}% · resolves by ${p.resolves_by}`,
+    `AI consensus: ${p.consensus_prob}% · resolves by ${p.resolves_by}`,
+    marketLine(p),
     ``,
     ...lines,
     ``,
-    `Vote "happened / didn't" → ${predUrl(p, site)}`,
-  ].join("\n");
+    `Full reasoning, sources and the running scoreboard:`,
+    pageUrl(site, p),
+  ].filter((l) => l !== null).join("\n");
 }
 
-function igCaption(preds, site) {
-  const lines = preds.map((p) => `🔮 ${p.consensus_prob}% — ${p.headline}`);
-  return [
-    `Tonight's forecasts from 6 frontier AI models:`,
-    ``,
-    ...lines,
-    ``,
-    `Full reasoning + voting → ${site}`,
-    ``,
-    `#AI #forecasting #future #predictions #willhappen`,
-  ].join("\n").slice(0, 2200);
+function redditTitle(p) {
+  const market = p.market && typeof p.market.prob === "number" ? ` (the market says ${p.market.prob}%)` : "";
+  return `${p.headline} — six frontier AI models put it at ${p.consensus_prob}%${market}`.slice(0, 300);
+}
+
+function hashtags(p) {
+  const t = topicOf(p.topic);
+  const h = horizonOf(p.horizon);
+  return ["#AI", "#forecasting", "#predictions", t ? `#${t.name.replace(/[^A-Za-z]/g, "")}` : null, h ? `#${h.short}` : null, "#willhappen"]
+    .filter(Boolean).join(" ");
 }

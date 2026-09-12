@@ -1,20 +1,25 @@
 {
   "name": "willhappen-ai",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Consensus forecasting — 6 AI models per prediction. Static + Cloudflare Worker.",
   "type": "module",
+  "description": "Six frontier AI models forecast the news, benchmarked against prediction markets and graded against sources. One Cloudflare Worker.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmusato/willhappen.ai.git"
+  },
   "scripts": {
-    "dev": "wrangler dev --local --test-scheduled",
-    "dev:fresh": "rm -rf .wrangler/state && wrangler dev --local --test-scheduled",
+    "dev": "wrangler dev",
+    "dev:fresh": "rm -rf .wrangler/state && wrangler dev",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "kv:seed-index": "wrangler kv key put --binding=WH_KV 'predictions:index' --path=public/data/index.json",
-    "cron:trigger": "curl -s 'http://localhost:8787/__scheduled?cron=17+3+*+*+*' && echo",
-    "backfill": "node scripts/backfill.mjs",
-    "lint": "for f in src/worker.js src/handlers/*.js src/generate/*.js src/social/*.js; do node --check $f || exit 1; done"
+    "cron": "curl -s 'http://localhost:8787/cdn-cgi/handler/scheduled?cron=7+*+*+*+*' && echo ' \u2190 cron fired'",
+    "markets": "node scripts/markets.mjs",
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test test/*.test.js"
   },
   "devDependencies": {
-    "wrangler": "^3.95.0"
+    "wrangler": "^4.42.0"
   }
 }

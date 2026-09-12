@@ -1,158 +1,164 @@
-// WillHappen.ai — single Cloudflare Worker
-//   • serves static assets (public/)
-//   • exposes /api/* endpoints
-//   • runs nightly generation via scheduled()
+// WillHappen.ai — the whole project, one Cloudflare Worker.
 //
-// All state lives in KV; no GitHub commits. `data/predictions.json` in the
-// repo is only a seed used the very first time the Worker is hit.
+//   fetch()      server-rendered pages, the JSON API, share cards, feeds
+//   scheduled()  hourly: harvest → forecast → resolve → re-price → post
+//
+// KV is the source of truth. The JSON under public/data/ is a seed, loaded the
+// first time the Worker is asked for something KV does not have — which is why
+// a fresh clone of this repo serves a populated site on its first request.
 
+import { handlePredictions, loadPrediction } from "./handlers/predictions.js";
 import { handleVote } from "./handlers/vote.js";
 import { handleSuggest } from "./handlers/suggest.js";
-import { handlePredictions, loadPrediction } from "./handlers/predictions.js";
-import { handleOg } from "./handlers/og.js";
-import { runGeneration } from "./generate/generate.js";
-import { runSocialPosting } from "./social/index.js";
+import { handleOg, handleDefaultOg } from "./handlers/og.js";
+import { handleCatalog, handleLeaderboard } from "./handlers/meta.js";
+import { handleSitemap } from "./handlers/sitemap.js";
+import { handleFeed } from "./handlers/feed.js";
+import { handleAdmin } from "./handlers/admin.js";
+import { json, preflight } from "./handlers/http.js";
+import { getIndex } from "./store/kv.js";
+import { getLeaderboard } from "./pipeline/score.js";
+import { runCycle } from "./pipeline/run.js";
+import { runSocial } from "./social/index.js";
+import { filterRows, SORTS } from "./handlers/predictions.js";
+import {
+  aboutPage, homePage, modelsPage, notFoundPage, predictionPage,
+  suggestPage, timelinePage, topicsPage,
+} from "./render/pages.js";
 
-const json = (data, status = 200, extra = {}) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-      "access-control-allow-origin": "*",
-      ...extra,
-    },
-  });
-
-const corsPreflight = () =>
-  new Response(null, {
-    status: 204,
-    headers: {
-      "access-control-allow-origin": "*",
-      "access-control-allow-methods": "GET, POST, OPTIONS",
-      "access-control-allow-headers": "content-type",
-      "access-control-max-age": "86400",
-    },
-  });
+const PAGE_CACHE = "public, max-age=120, s-maxage=900, stale-while-revalidate=86400";
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const p = url.pathname;
+    const path = url.pathname.replace(/\/+$/, "") || "/";
 
-    if (request.method === "OPTIONS") return corsPreflight();
+    if (request.method === "OPTIONS") return preflight();
 
     try {
-      if (p === "/api/predictions" || p.startsWith("/api/predictions/"))
-                                             return await handlePredictions(request, env, ctx);
-      if (p === "/api/vote")                 return await handleVote(request, env, ctx);
-      if (p === "/api/suggest")              return await handleSuggest(request, env, ctx);
-      if (p.startsWith("/og/"))              return await handleOg(request, env, ctx);
-      if (p === "/api/health")               return json({ ok: true, time: new Date().toISOString() });
-      if (p === "/api/admin/run")            return await handleAdminRun(request, env, ctx);
+      // ── API ───────────────────────────────────────────
+      if (path.startsWith("/api/")) {
+        if (path === "/api/predictions" || path.startsWith("/api/predictions/")) return await handlePredictions(request, env);
+        if (path === "/api/vote")        return await handleVote(request, env);
+        if (path === "/api/suggest")     return await handleSuggest(request, env);
+        if (path === "/api/catalog")     return handleCatalog();
+        if (path === "/api/leaderboard") return await handleLeaderboard(request, env);
+        if (path === "/api/health")      return json({ ok: true, time: new Date().toISOString() });
+        if (path.startsWith("/api/admin")) return await handleAdmin(request, env, ctx);
+        return json({ error: "unknown_endpoint" }, 404);
+      }
+
+      // ── machine-readable ──────────────────────────────
+      if (path === "/sitemap.xml")  return await handleSitemap(request, env);
+      if (path === "/feed.xml" || path === "/rss.xml") return await handleFeed(request, env);
+      if (path === "/og-default.png" || path === "/og-default.svg") return await handleDefaultOg(request, env, ctx);
+      if (path.startsWith("/og/"))  return await handleOg(request, env, ctx);
+
+      // ── pages ─────────────────────────────────────────
+      if (request.method === "GET" || request.method === "HEAD") {
+        const page = await renderPage(path, url, env, request);
+        if (page) return page;
+      }
     } catch (err) {
-      console.error("handler error", err);
-      return json({ error: String(err?.message || err) }, 500);
+      console.error(`[fetch] ${path}:`, err?.stack || err);
+      if (path.startsWith("/api/")) return json({ error: "internal_error" }, 500);
+      return html(notFoundPage({ site: siteUrl(env, url) }), 500);
     }
 
-    // pre-rendered per-prediction page with OG tags
-    if (p.startsWith("/p/") && !p.endsWith(".html")) {
-      const id = p.slice(3).split("/")[0];
-      return await renderPredictionPage(id, env, request);
-    }
-
-    // static asset fallback
-    return env.ASSETS.fetch(request);
+    // Static assets (CSS, JS, seed JSON, favicon, robots.txt).
+    const asset = await env.ASSETS.fetch(request);
+    if (asset.status !== 404) return asset;
+    return html(notFoundPage({ site: siteUrl(env, url) }), 404);
   },
 
   async scheduled(event, env, ctx) {
     ctx.waitUntil((async () => {
-      await runGeneration(env, { cron: event.cron });
-      await runSocialPosting(env);
+      const hour = new Date(event.scheduledTime || Date.now()).getUTCHours();
+      const cycle = await runCycle(env, { reason: event.cron || "cron", hour });
+      const social = await runSocial(env, { max: cycle.plan.social }).catch((err) => ({ error: String(err?.message || err) }));
+      console.log("[scheduled]", JSON.stringify({ hour, steps: cycle.steps, social }));
     })());
   },
 };
 
-// POST /api/admin/run  { generate?: true, social?: true }
-// Manual trigger for testing — requires `authorization: Bearer <ADMIN_TOKEN>`.
-async function handleAdminRun(request, env) {
-  if (request.method !== "POST") return new Response("method not allowed", { status: 405 });
-  const auth = request.headers.get("authorization") || "";
-  if (!env.ADMIN_TOKEN || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
-    return json({ error: "unauthorized" }, 401);
+async function renderPage(path, url, env, request) {
+  const site = siteUrl(env, url);
+
+  if (path === "/") {
+    const [index, board] = await Promise.all([getIndex(env), getLeaderboard(env)]);
+    if (!index.predictions.length) await seedFromAssets(env, request);
+    const fresh = index.predictions.length ? index : await getIndex(env);
+    return html(homePage({ site, index: fresh, board }));
   }
-  const body = await request.json().catch(() => ({}));
-  const out = {};
-  if (body.generate) { await runGeneration(env, { cron: "manual" }); out.generate = "done"; }
-  if (body.social)   { out.social = (await runSocialPosting(env)) || "nothing to post"; }
-  if (!body.generate && !body.social) out.hint = 'send {"generate":true} and/or {"social":true}';
-  return json(out);
+
+  if (path === "/timeline") {
+    const index = await getIndex(env);
+    const query = parseQuery(url);
+    const filtered = filterRows(index.predictions, query);
+    filtered.sort(SORTS[query.sort] || SORTS.new);
+    return html(timelinePage({
+      site, index, query, total: filtered.length,
+      list: filtered.slice(query.offset, query.offset + query.limit),
+    }));
+  }
+
+  if (path === "/topics") return html(topicsPage({ site, index: await getIndex(env) }));
+  if (path === "/models") return html(modelsPage({ site, board: await getLeaderboard(env) }));
+  if (path === "/about")  return html(aboutPage({ site }));
+  if (path === "/suggest") return html(suggestPage({ site, prefill: url.searchParams.get("q") || "" }));
+
+  if (path.startsWith("/p/")) {
+    const id = decodeURIComponent(path.slice(3).split("/")[0]);
+    const p = await loadPrediction(env, request, id);
+    if (!p) return html(notFoundPage({ site }), 404);
+    const { predictions } = await getIndex(env);
+    const related = predictions
+      .filter((r) => r.id !== p.id && r.topic === p.topic)
+      .sort((a, b) => String(b.question_generated_at).localeCompare(String(a.question_generated_at)))
+      .slice(0, 4);
+    return html(predictionPage({ site, p, related }), 200, PAGE_CACHE);
+  }
+
+  return null;
 }
 
-async function renderPredictionPage(id, env, request) {
-  const p = await loadPrediction(env, request, id);
+function parseQuery(url) {
+  const q = url.searchParams;
+  const raw = new URLSearchParams(q);
+  raw.delete("offset");
+  return {
+    q: (q.get("q") || "").slice(0, 120),
+    topic: q.get("topic") || "",
+    horizon: q.get("horizon") || "",
+    status: q.get("status") || "",
+    source: q.get("source") || "",
+    sort: SORTS[q.get("sort")] ? q.get("sort") : "new",
+    search: (q.get("q") || "").slice(0, 120),
+    hasMarket: q.get("market") === "1",
+    limit: Math.min(100, Math.max(10, Number(q.get("limit")) || 40)),
+    offset: Math.max(0, Number(q.get("offset")) || 0),
+    raw: Object.fromEntries(raw),
+  };
+}
 
-  const title = p ? `${p.headline} — WillHappen.ai` : "Prediction — WillHappen.ai";
-  const desc  = p
-    ? `${p.consensus_prob}% say it'll happen. Six AI models agree.`
-    : "Consensus forecasts from six frontier AI models.";
-  const ogUrl = `https://willhappen.ai/og/${id}`;
-  const canon = `https://willhappen.ai/p/${id}`;
+// First boot: pull the repo's seed index into KV so the site is never empty.
+async function seedFromAssets(env, request) {
+  try {
+    const res = await env.ASSETS.fetch(new URL("/data/index.json", request.url));
+    if (res.ok) await env.WH_KV.put("predictions:index", JSON.stringify(await res.json()));
+  } catch (err) {
+    console.warn("[seed] failed:", err?.message || err);
+  }
+}
 
-  const html = `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>${escapeHtml(title)}</title>
-  <link rel="canonical" href="${canon}">
-  <meta name="description" content="${escapeHtml(desc)}">
-  <meta property="og:title" content="${escapeHtml(title)}">
-  <meta property="og:description" content="${escapeHtml(desc)}">
-  <meta property="og:image" content="${ogUrl}">
-  <meta property="og:url" content="${canon}">
-  <meta property="og:type" content="article">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="${ogUrl}">
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap">
-  <link rel="stylesheet" href="/assets/style.css">
-</head>
-<body>
-  <nav class="nav">
-    <a class="logo" href="/"><span class="dot"></span>will<i>happen</i><small>.ai</small></a>
-    <div class="nav-links">
-      <a href="/timeline">Timeline</a>
-      <a href="/suggest">Suggest</a>
-      <a class="nav-pill" href="https://github.com/dmusato/willhappen.ai">GitHub ↗</a>
-    </div>
-  </nav>
-  <main>
-    <section id="detail" class="detail-wrap"></section>
-  </main>
-  <footer class="foot">
-    <div>Open source · <a href="https://github.com/dmusato/willhappen.ai">github.com/dmusato/willhappen.ai</a></div>
-    <div>Six frontier AI models · <a href="/timeline">Timeline</a> · <a href="/suggest">Suggest</a></div>
-  </footer>
-  <script src="/assets/app.js"></script>
-  <script>
-    WH.renderDetail(${JSON.stringify(id)});
-  </script>
-</body>
-</html>`;
+const siteUrl = (env, url) => String(env.SITE_URL || url.origin).replace(/\/$/, "");
 
-  return new Response(html, {
+const html = (body, status = 200, cache = PAGE_CACHE) =>
+  new Response(body, {
+    status,
     headers: {
       "content-type": "text/html; charset=utf-8",
-      "cache-control": "public, max-age=120, s-maxage=600, stale-while-revalidate=86400",
+      "cache-control": status === 200 ? cache : "no-store",
+      "x-content-type-options": "nosniff",
     },
   });
-}
-
-function escapeHtml(s = "") {
-  return String(s).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
-}
