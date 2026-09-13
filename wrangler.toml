@@ -14,10 +14,14 @@ compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
 workers_dev = true
-routes = [
-  { pattern = "willhappen.ai",     custom_domain = true },
-  { pattern = "www.willhappen.ai", custom_domain = true },
-]
+# Held back until the archive has something to show. The zone is Active, but
+# willhappen.ai still carries the registrar's old parking A records, and
+# custom_domain refuses to take a hostname that already has externally managed
+# DNS — so attaching is: delete those three records, then uncomment and deploy.
+# routes = [
+#   { pattern = "willhappen.ai",     custom_domain = true },
+#   { pattern = "www.willhappen.ai", custom_domain = true },
+# ]
 
 [assets]
 directory = "./public"
