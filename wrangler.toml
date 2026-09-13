@@ -43,6 +43,12 @@ enabled = true
 SITE_URL = "https://willhappen.ai"
 REPO     = "dmusato/willhappen.ai"
 
+# Optional: put Cloudflare AI Gateway in front of OpenRouter for caching, spend
+# limits, per-model analytics and a kill switch. Paste the endpoint the AI
+# Gateway dashboard prints for the OpenRouter provider; leave empty to call
+# OpenRouter directly.
+AI_GATEWAY_URL = ""
+
 # ── how much it publishes, and what that costs ──────────────
 DAILY_QUESTIONS    = "30"    # forecasts per UTC day (0 = no cap)
 DAILY_BUDGET_USD   = "0.70"  # hard stop, measured against OpenRouter's reported cost

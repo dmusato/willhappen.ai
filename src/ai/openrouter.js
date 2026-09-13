@@ -5,7 +5,18 @@
 // hand back so the caller can write it to the daily ledger. Nothing here talks
 // to KV; budgeting lives in store/ledger.js.
 
-const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+const DIRECT = "https://openrouter.ai/api/v1/chat/completions";
+
+// Optionally route the same calls through Cloudflare AI Gateway, which sits in
+// front of OpenRouter and adds caching, spend limits, per-model analytics and
+// a kill switch — none of which OpenRouter gives us on its own. Set the full
+// endpoint rather than assembling it: Cloudflare's own docs disagree with
+// themselves about whether the path carries a /v1, and the dashboard prints
+// the correct one for your gateway.
+//
+//   AI_GATEWAY_URL = "https://gateway.ai.cloudflare.com/v1/<account>/<gateway>/openrouter/v1/chat/completions"
+//   AI_GATEWAY_TOKEN = only if the gateway is set to authenticated
+const endpointFor = (env) => env.AI_GATEWAY_URL || DIRECT;
 
 export class ModelError extends Error {
   constructor(message, { status = 0, model = "" } = {}) {
@@ -60,7 +71,7 @@ export async function chat(env, {
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   let res;
   try {
-    res = await fetch(ENDPOINT, {
+    res = await fetch(endpointFor(env), {
       method: "POST",
       signal: ctl.signal,
       headers: {
@@ -68,6 +79,7 @@ export async function chat(env, {
         "content-type": "application/json",
         "http-referer": env.SITE_URL || "https://willhappen.ai",
         "x-title": "WillHappen.ai",
+        ...(env.AI_GATEWAY_TOKEN ? { "cf-aig-authorization": `Bearer ${env.AI_GATEWAY_TOKEN}` } : {}),
       },
       body: JSON.stringify(body),
     });
