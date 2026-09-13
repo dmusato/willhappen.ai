@@ -177,12 +177,24 @@ async function seedFromAssets(env, request) {
 
 const siteUrl = (env, url) => String(env.SITE_URL || url.origin).replace(/\/$/, "");
 
+// public/_headers only reaches what the ASSETS binding serves, and every page
+// here is rendered by the Worker instead — so the /* block in that file was
+// never actually covering the HTML. These mirror it, and the two should be
+// changed together.
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "geolocation=(), microphone=(), camera=(), interest-cohort=()",
+  "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+};
+
 const html = (body, status = 200, cache = PAGE_CACHE) =>
   new Response(body, {
     status,
     headers: {
       "content-type": "text/html; charset=utf-8",
       "cache-control": status === 200 ? cache : "no-store",
-      "x-content-type-options": "nosniff",
+      ...SECURITY_HEADERS,
     },
   });
