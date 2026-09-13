@@ -85,10 +85,18 @@ export async function forecastQuestion(env, q, { existingIds = new Set() } = {})
 
   const models = Object.fromEntries(results.map((r) => [r.key, r.cell]));
   const probs = results.map((r) => r.cell.prob).filter((p) => typeof p === "number");
-  // Three answers is the floor: below that a single outlier is the consensus.
-  if (probs.length < 3) throw new Error(`only ${probs.length}/${PANEL.length} models answered`);
+  const spent = results.reduce((a, r) => a + r.cost, 0);
 
-  await addSpend(env, { cost: results.reduce((a, r) => a + r.cost, 0), calls: results.length, forecasts: 1 });
+  // Three answers is the floor: below that a single outlier is the consensus.
+  // Whatever did answer was still billed, so the ledger has to hear about it
+  // before we give up — the daily cap is measured against real spend, and a
+  // question that keeps half-failing gets requeued and charged again.
+  if (probs.length < 3) {
+    await addSpend(env, { cost: spent, calls: results.length });
+    throw new Error(`only ${probs.length}/${PANEL.length} models answered`);
+  }
+
+  await addSpend(env, { cost: spent, calls: results.length, forecasts: 1 });
 
   const consensus = Math.round(median(probs));
   const spread = Math.max(...probs) - Math.min(...probs);
