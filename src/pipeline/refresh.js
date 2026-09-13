@@ -10,11 +10,21 @@ import { pool } from "../util.js";
 
 export async function refreshMarkets(env, { max = 8 } = {}) {
   const { predictions } = await getIndex(env);
-  const open = predictions.filter((p) => p.verdict === null && p.market_prob !== null && p.market_prob !== undefined);
+  const open = predictions
+    .filter((p) => p.verdict === null && p.market_prob !== null && p.market_prob !== undefined)
+    // Stalest first. The index is newest-first, so taking it in order re-priced
+    // the same few recent rows every run and left everything older frozen at the
+    // price it was born with — drift, the reason to come back to a page, would
+    // quietly only ever work near the top of the archive. Rows with no stamp yet
+    // sort first, which is what we want: they have never been checked at all.
+    .sort((a, b) => String(a.market_checked_at || "").localeCompare(String(b.market_checked_at || "")));
   if (!open.length) return { checked: 0, updated: 0 };
 
+  // Every candidate costs a KV read and a cron invocation has ~50 subrequests
+  // for the whole cycle, so the search for usable records is bounded rather
+  // than walking the archive when a source has no fetchOne.
   const records = [];
-  for (const row of open) {
+  for (const row of open.slice(0, max * 3)) {
     const p = await getPrediction(env, row.id);
     if (p?.market?.source && SOURCES[p.market.source]?.fetchOne) records.push(p);
     if (records.length >= max) break;

@@ -45,6 +45,9 @@ export function indexEntry(p) {
     spread: p.spread ?? null,
     market_prob: p.market?.prob ?? null,
     market_id: p.market?.external_id ?? null,
+    // Carried in the index so the re-pricer can pick the stalest rows without
+    // reading every full record to find out when each was last checked.
+    market_checked_at: p.market?.checked_at ?? null,
     edge: p.edge ?? null,
     verdict: p.verdict,
     question_generated_at: p.question_generated_at,
