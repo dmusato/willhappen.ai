@@ -56,8 +56,25 @@ export default {
 
       // ── pages ─────────────────────────────────────────
       if (request.method === "GET" || request.method === "HEAD") {
+        // Cloudflare does not cache what a Worker returns unless the Worker
+        // puts it there, so until now the cache-control on these pages only
+        // ever reached the browser and every cold visit paid for a read of the
+        // whole index plus a full render. The share-card handler already works
+        // this way; pages are the hotter path. The cache key is the request URL,
+        // so /timeline?topic=ai is cached apart from /timeline, and the stored
+        // response expires on its own s-maxage.
+        const cacheable = request.method === "GET";
+        const cache = caches.default;
+        if (cacheable) {
+          const hit = await cache.match(request);
+          if (hit) return hit;
+        }
+
         const page = await renderPage(path, url, env, request);
-        if (page) return page;
+        if (page) {
+          if (cacheable && page.status === 200) ctx.waitUntil(cache.put(request, page.clone()));
+          return page;
+        }
       }
     } catch (err) {
       console.error(`[fetch] ${path}:`, err?.stack || err);
