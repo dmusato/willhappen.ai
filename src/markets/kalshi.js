@@ -12,8 +12,15 @@ export const label = "Kalshi";
 
 const SKIP_CATEGORIES = /sport|entertainment/i;
 
-export async function fetchMarkets(env, { limit = 200, minLiquidity = 5000 } = {}) {
-  const res = await fetch(`${API}/events?status=open&with_nested_markets=true&limit=${limit}`, {
+// Kalshi rejects /events outright above 200 rather than clamping, and the
+// registry hands every source the same page size — so one caller asking for a
+// bigger sweep would drop Kalshi from the harvest entirely instead of just
+// reading fewer rows from it.
+const MAX_PAGE = 200;
+
+export async function fetchMarkets(env, { limit = MAX_PAGE, minLiquidity = 5000 } = {}) {
+  const page = Math.min(Math.max(1, limit), MAX_PAGE);
+  const res = await fetch(`${API}/events?status=open&with_nested_markets=true&limit=${page}`, {
     headers: { accept: "application/json" },
   });
   if (!res.ok) throw new Error(`kalshi ${res.status}: ${(await res.text()).slice(0, 160)}`);

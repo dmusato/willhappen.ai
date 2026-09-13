@@ -65,3 +65,18 @@ test("kalshi: reads nested markets and skips sports and template holes", async (
   assert.equal(out[0].prob, 42, "mid-price between bid and ask");
   assert.equal(out[0].url, "https://kalshi.com/markets/kxfed");
 });
+
+test("kalshi: caps the page size so a wide sweep does not 400 the whole source", async () => {
+  const real = globalThis.fetch;
+  let asked = null;
+  globalThis.fetch = async (url) => {
+    asked = new URL(url).searchParams.get("limit");
+    return new Response(JSON.stringify({ events: [] }), { headers: { "content-type": "application/json" } });
+  };
+  try {
+    await kalshi({}, { limit: 500 });
+    assert.equal(asked, "200");
+  } finally {
+    globalThis.fetch = real;
+  }
+});
