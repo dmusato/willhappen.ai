@@ -1,0 +1,99 @@
+# WillHappen.ai — the entire project.
+#
+#   one Worker · one KV namespace · one OpenRouter key · no build step
+#
+# First run:
+#   npm install
+#   npx wrangler kv namespace create WH_KV     # paste the id below
+#   npx wrangler secret put OPENROUTER_API_KEY
+#   npx wrangler deploy
+
+name = "willhappen-ai"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+workers_dev = true
+routes = [
+  { pattern = "willhappen.ai",     custom_domain = true },
+  { pattern = "www.willhappen.ai", custom_domain = true },
+]
+
+[assets]
+directory = "./public"
+binding   = "ASSETS"
+# Pages are rendered by the Worker; public/ only holds CSS, JS and seed JSON,
+# none of which collide with a page route. Anything unmatched falls through.
+not_found_handling = "none"
+
+[[kv_namespaces]]
+binding = "WH_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[triggers]
+# Hourly, not nightly. A Worker invocation gets ~50 subrequests and the project
+# has a daily budget, so the work is spread into small slices — which also means
+# pages publish through the day instead of all at once.
+crons = ["7 * * * *"]
+
+[observability]
+enabled = true
+
+[vars]
+SITE_URL = "https://willhappen.ai"
+REPO     = "dmusato/willhappen.ai"
+
+# Optional: put Cloudflare AI Gateway in front of OpenRouter for caching, spend
+# limits, per-model analytics and a kill switch. Paste the endpoint the AI
+# Gateway dashboard prints for the OpenRouter provider; leave empty to call
+# OpenRouter directly.
+AI_GATEWAY_URL = ""
+
+# ── how much it publishes, and what that costs ──────────────
+DAILY_QUESTIONS    = "30"    # forecasts per UTC day (0 = no cap)
+DAILY_BUDGET_USD   = "0.70"  # hard stop, measured against OpenRouter's reported cost
+FORECASTS_PER_RUN  = "2"
+RESOLVES_PER_RUN   = "2"
+REFRESH_PER_RUN    = "6"
+SOCIAL_PER_RUN     = "2"
+QUEUE_LOW_WATER    = "12"
+
+SUGGEST_COOLDOWN_SECONDS = "600"   # per IP; this endpoint opens public GitHub issues
+
+# ── question sources ────────────────────────────────────────
+MARKET_SOURCES        = "polymarket,kalshi"
+MARKET_MIN_LIQUIDITY  = "5000"
+
+# ── auto-resolution ─────────────────────────────────────────
+# Tier 1 is the exchange settling its own market — no thresholds apply, and a
+# disputed resolution always goes to a human. These govern tier 2, the jury of
+# three models ruling on cited evidence.
+RESOLVE_MIN_CONFIDENCE   = "80"   # mean across the jury
+RESOLVE_MIN_SOURCES      = "2"
+RESOLVE_GRACE_DAYS       = "1"    # wait after the deadline before checking
+RESOLVE_MARKET_WAIT_DAYS = "21"   # how long to let an exchange be slow
+RESOLVE_RECHECK_HOURS    = "12"   # don't re-check the same question sooner
+RESOLVE_GIVE_UP_DAYS     = "120"  # retire to review rather than pay forever
+LEADERBOARD_MIN_SAMPLE   = "10"
+
+# ── social (all optional) ───────────────────────────────────
+# POSTIZ_API_URL = "https://your-postiz/api/public/v1"   # self-hosted Postiz
+# POSTIZ_SETTINGS = '{"reddit":{"subreddit":["yoursub"]},"pinterest":{"board":"board-id"}}'
+REDDIT_SUBREDDIT = ""
+FB_PAGE_ID       = ""
+IG_USER_ID       = ""
+TG_CHAT_ID       = ""    # "@yourchannel" — needs no app review, just a bot
+
+# ── secrets (wrangler secret put NAME) ──────────────────────
+#   OPENROUTER_API_KEY   required — every model call
+#   ADMIN_TOKEN          required for /api/admin/*
+#   GH_TOKEN             optional — /suggest opens GitHub issues (scope: public_repo)
+#   POSTIZ_API_KEY       optional — posts to every channel connected in Postiz
+# Direct social. Usable alongside Postiz or instead of it.
+# No app review needed — set up in minutes:
+#   TG_BOT_TOKEN                        Telegram, from @BotFather
+#   BSKY_HANDLE / BSKY_APP_PASSWORD     Bluesky, from account settings
+#   REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET / REDDIT_USERNAME / REDDIT_PASSWORD
+# Need an app, and in Meta's case app review:
+#   TW_API_KEY / TW_API_SECRET / TW_ACCESS_TOKEN / TW_ACCESS_SECRET
+#   FB_PAGE_TOKEN

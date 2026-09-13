@@ -1,0 +1,25 @@
+{
+  "name": "willhappen-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Six frontier AI models forecast the news, benchmarked against prediction markets and graded against sources. One Cloudflare Worker.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmusato/willhappen.ai.git"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:fresh": "rm -rf .wrangler/state && wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "cron": "curl -s 'http://localhost:8787/cdn-cgi/handler/scheduled?cron=7+*+*+*+*' && echo ' \u2190 cron fired'",
+    "markets": "node scripts/markets.mjs",
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.42.0"
+  }
+}

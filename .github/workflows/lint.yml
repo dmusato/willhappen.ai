@@ -1,0 +1,21 @@
+# The only thing GitHub Actions does here. Generation, resolution, posting and
+# deploys all live in Cloudflare — no secrets belong in this file.
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # No install step: lint and tests use only Node builtins.
+      - name: Syntax + JSON
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
