@@ -79,8 +79,13 @@ export async function harvestMarkets(env, { want = 12 } = {}) {
   }
   if (!fresh.length) return { added: 0, considered: markets.length, source: "markets" };
 
+  // Deliberately no price. The curator writes `context`, and `context` is read
+  // back to the panel at forecast time — so a curator that mentions the market
+  // sits at 79% hands the panel the number the whole scoreboard exists to
+  // compare it against. The curator needs the wording, the deadline and the
+  // rules to do its job; it never needs the price.
   const items = fresh.map((m, i) =>
-    `${i}. ${m.question}\n   deadline: ${String(m.endDate).slice(0, 10)} · market price: ${m.prob}% · ${m.source}` +
+    `${i}. ${m.question}\n   deadline: ${String(m.endDate).slice(0, 10)} · ${m.source}` +
     (m.rules ? `\n   resolves: ${m.rules.slice(0, 400)}` : ""));
 
   const curated = await curate(env, items, `Source: prediction markets. Today is ${new Date().toISOString().slice(0, 10)}.`);
