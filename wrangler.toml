@@ -52,6 +52,8 @@ REFRESH_PER_RUN    = "6"
 SOCIAL_PER_RUN     = "2"
 QUEUE_LOW_WATER    = "12"
 
+SUGGEST_COOLDOWN_SECONDS = "600"   # per IP; this endpoint opens public GitHub issues
+
 # ── question sources ────────────────────────────────────────
 MARKET_SOURCES        = "polymarket,kalshi"
 MARKET_MIN_LIQUIDITY  = "5000"

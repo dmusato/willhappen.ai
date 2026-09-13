@@ -17,10 +17,13 @@ export async function handleSuggest(request, env) {
   if (!HORIZON_IDS.includes(horizon)) return json({ error: "unknown horizon" }, 400);
   if (topic && !TOPIC_IDS.includes(topic)) return json({ error: "unknown topic" }, 400);
 
+  // This endpoint writes to a public GitHub repo, so the limit is per-IP and
+  // deliberately slow: a minute apart would still be ~1400 issues a day.
   const ip = request.headers.get("cf-connecting-ip") || "anon";
+  const window = Math.max(60, Number(env.SUGGEST_COOLDOWN_SECONDS ?? 600));
   const rl = `rl:suggest:${ip}`;
-  if (await env.WH_KV.get(rl)) return json({ error: "rate_limited", retry_after: 60 }, 429);
-  await env.WH_KV.put(rl, "1", { expirationTtl: 60 });
+  if (await env.WH_KV.get(rl)) return json({ error: "rate_limited", retry_after: window }, 429);
+  await env.WH_KV.put(rl, "1", { expirationTtl: window });
 
   if (!env.GH_TOKEN) return json({ error: "suggestions_not_configured" }, 503);
   const repo = env.REPO || "dmusato/willhappen.ai";

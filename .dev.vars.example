@@ -1,0 +1,20 @@
+# Скопируй в .dev.vars (он в .gitignore) для локальной разработки.
+#   cp .dev.vars.example .dev.vars
+
+# Весь цикл крутится офлайн на синтетических ответах.
+# Данные бирж при этом настоящие — их API бесплатные и без ключей.
+MOCK_LLM=1
+
+# Любая строка: локально ей защищён /api/admin/*
+ADMIN_TOKEN=localdev
+
+# Убери MOCK_LLM и раскомментируй, чтобы локально звать настоящие модели.
+# Ключ: https://openrouter.ai/keys
+# OPENROUTER_API_KEY=sk-or-v1-...
+
+# Необязательное — без них соответствующие функции просто выключены.
+# GH_TOKEN=              # /suggest открывает issue. Scope: public_repo
+# POSTIZ_API_KEY=        # постинг во все каналы, подключённые в Postiz
+# TG_BOT_TOKEN=          # Telegram-бот от @BotFather
+# BSKY_HANDLE=
+# BSKY_APP_PASSWORD=

@@ -31,13 +31,21 @@ export async function handleVote(request, env) {
   if (!VALID.has(verdict)) return json({ error: "bad_verdict" }, 400);
   if (typeof fp !== "string" || fp.length < 8 || fp.length > 64) return json({ error: "bad_fingerprint" }, 400);
 
-  const [prior, stored] = await Promise.all([
+  // The fingerprint is client-generated, so it identifies a browser, not a
+  // person — on its own it stops double-clicks, not a script minting a new one
+  // per request. The IP limit below is what actually caps ballot stuffing.
+  const ip = request.headers.get("cf-connecting-ip") || "anon";
+  const ipKey = `rl:vote:${ip}`;
+
+  const [prior, stored, ipHit] = await Promise.all([
     env.WH_KV.get(userKey(id, fp)),
     env.WH_KV.get(tallyKey(id), "json"),
+    env.WH_KV.get(ipKey),
   ]);
   const tally = { yes: stored?.yes || 0, no: stored?.no || 0 };
 
   if (prior === verdict) return json({ ...tally, total: tally.yes + tally.no, unchanged: true });
+  if (ipHit) return json({ error: "rate_limited" }, 429);
 
   // Changing your mind is allowed, but not in a loop — KV's floor TTL is 60s.
   if (prior) {
@@ -47,6 +55,7 @@ export async function handleVote(request, env) {
     if (VALID.has(prior)) tally[prior] = Math.max(0, tally[prior] - 1);
   }
   tally[verdict] += 1;
+  await env.WH_KV.put(ipKey, "1", { expirationTtl: 20 });
 
   await Promise.all([
     env.WH_KV.put(userKey(id, fp), verdict, { expirationTtl: YEAR }),
