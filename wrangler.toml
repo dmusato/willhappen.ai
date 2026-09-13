@@ -28,7 +28,7 @@ not_found_handling = "none"
 
 [[kv_namespaces]]
 binding = "WH_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "51a0c7c328d94d65abcac552a6c3cb85"
 
 [triggers]
 # Hourly, not nightly. A Worker invocation gets ~50 subrequests and the project
@@ -47,7 +47,7 @@ REPO     = "dmusato/willhappen.ai"
 # limits, per-model analytics and a kill switch. Paste the endpoint the AI
 # Gateway dashboard prints for the OpenRouter provider; leave empty to call
 # OpenRouter directly.
-AI_GATEWAY_URL = ""
+AI_GATEWAY_URL = "https://gateway.ai.cloudflare.com/v1/0a22c4d8635a3e53cd48521fde3eb8b5/willhappen-ai/openrouter/v1/chat/completions"
 
 # ── how much it publishes, and what that costs ──────────────
 DAILY_QUESTIONS    = "30"    # forecasts per UTC day (0 = no cap)
