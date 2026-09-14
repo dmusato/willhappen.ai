@@ -223,6 +223,25 @@ curl -X POST $SITE/api/admin/verdict -H "authorization: Bearer $ADMIN_TOKEN" \
 **Rebuild the scoreboard from scratch** — `POST /api/admin/rebuild-scores`.
 Expensive in KV reads, which is why it is admin-only and off the cron path.
 
+## Branches
+
+`work` is where changes land and what production is deployed from. `main` is the
+public branch and moves only when the owner asks, by squash — so it carries one
+commit per shipped batch instead of the dozen small fixes that produced it.
+
+```bash
+# promote work to main
+git checkout main && git merge --squash work
+git commit                      # one message covering the batch
+git push origin main
+
+# restart work from what was just published
+git checkout work && git reset --hard main && git push -f origin work
+```
+
+`main` is append-only after its first commit: one commit per promotion, never
+rewritten. `work` is scratch and may be reset.
+
 ## Dev
 
 | Command | Effect |
