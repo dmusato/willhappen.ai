@@ -1,0 +1,15 @@
+node_modules/
+.wrangler/
+dist/
+build/
+
+# local secrets — never commit
+.dev.vars
+.env
+.env.*
+!.env.example
+
+.DS_Store
+.idea/
+.vscode/
+*.log

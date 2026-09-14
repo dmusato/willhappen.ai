@@ -1,0 +1,45 @@
+name: "Dispute or report an outcome"
+description: "A verdict looks wrong, or a prediction resolved and the machine hasn't noticed."
+title: "Outcome: "
+labels: ["outcome", "verification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Verdicts here are published automatically when the resolver is confident and has at
+        least two sources. That is fallible on purpose — the sources are printed on every
+        page so anyone can check the call. This is how you push back.
+  - type: input
+    id: prediction_id
+    attributes:
+      label: Prediction
+      description: The full URL, or the id from it.
+      placeholder: "https://willhappen.ai/p/the-fed-cuts-rates-in-october-a1b2"
+    validations:
+      required: true
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: What actually happened?
+      options:
+        - "It happened ✓"
+        - "It didn't happen ✗"
+        - "Genuinely unclear — shouldn't be resolved either way"
+        - "The question itself is broken (ambiguous, or the deadline is wrong)"
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Sources
+      description: Links a stranger can check. Reporting, official data, primary documents.
+      placeholder: "https://reuters.com/…"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Especially useful if the statement is nearly true but not literally true.
+    validations:
+      required: false

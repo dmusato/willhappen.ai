@@ -1,0 +1,20 @@
+# Copy to .dev.vars (which is gitignored) for local development.
+#   cp .dev.vars.example .dev.vars
+
+# The whole loop runs offline on synthetic model answers.
+# Market data is still real: those APIs are free and need no key.
+MOCK_LLM=1
+
+# Any string. Locally this is what protects /api/admin/*.
+ADMIN_TOKEN=localdev
+
+# Drop MOCK_LLM and uncomment to call real models from your machine.
+# Key: https://openrouter.ai/keys
+# OPENROUTER_API_KEY=sk-or-v1-...
+
+# Optional — without these the matching feature is simply off.
+# GH_TOKEN=              # /suggest opens a GitHub issue. Scope: public_repo
+# POSTIZ_API_KEY=        # posts to every channel connected in Postiz
+# TG_BOT_TOKEN=          # Telegram bot from @BotFather
+# BSKY_HANDLE=
+# BSKY_APP_PASSWORD=
