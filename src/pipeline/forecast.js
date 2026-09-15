@@ -81,7 +81,17 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
         timeoutMs: 60_000,
       });
       const prob = clampInt(r.json?.prob, 0, 100);
-      if (prob === null) throw new ModelError("no usable probability", { model: m.model });
+      if (prob === null) {
+        // Which failure this was matters and the record used to say neither: a
+        // reply that was not JSON at all is a different problem from one that
+        // parsed without a number in it. Carry a scrap of what came back, or
+        // the next one is just as opaque as the last.
+        throw new ModelError(
+          r.json
+            ? `no probability in ${JSON.stringify(r.json).slice(0, 90)}`
+            : `reply was not JSON: ${String(r.content || "").trim().slice(0, 90)}`,
+          { model: m.model });
+      }
       return {
         key: m.key,
         cost: r.cost,
