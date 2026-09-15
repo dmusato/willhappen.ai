@@ -11,7 +11,10 @@ import { forecastAndStore } from "./forecast.js";
 import { resolveDue } from "./resolve.js";
 import { refreshMarkets } from "./refresh.js";
 import { computeLeaderboard } from "./score.js";
-import { budgetLeft, getIndex, getLedger, getQueue, pushQueue, takeQueue, writeIndex } from "../store/kv.js";
+import {
+  budgetLeft, getIndex, getLedger, getPrediction, getQueue, listPredictionIds,
+  pushQueue, takeQueue, writeIndex,
+} from "../store/kv.js";
 import { submitUrls } from "../handlers/indexnow.js";
 
 // Rough cost of putting one question to all six models. Only used to decide
@@ -77,7 +80,12 @@ export async function runCycle(env, { reason = "cron", hour = new Date().getUTCH
   // 4 — re-price open markets (free: no model calls).
   if (plan.refresh > 0) out.steps.refresh = await safe("refresh", () => refreshMarkets(env, { max: plan.refresh }));
 
-  // 5 — tell the crawlers that take a ping. One request for the batch, and a
+  // 5 — give an index row back to anything that lost one. Cheap enough to run
+  //     every hour, and only reported when it finds something.
+  const repaired = await safe("reindex", () => repairIndex(env));
+  if (repaired?.orphans) out.steps.reindex = repaired;
+
+  // 6 — tell the crawlers that take a ping. One request for the batch, and a
   //     failure here must never mark the cycle failed: the pages are already
   //     published and in the sitemap either way.
   const fresh = out.steps.forecast?.ids || [];
@@ -90,6 +98,35 @@ export async function runCycle(env, { reason = "cron", hour = new Date().getUTCH
   out.ms = Date.now() - started;
   console.log(`[run] ${reason} h${hour}`, JSON.stringify(out.steps));
   return out;
+}
+
+// A run that hits the daily KV write ceiling lands a prediction record and is
+// then refused the index rewrite that lists it, leaving a forecast that is paid
+// for, fully answered, and read by nothing: the timeline, the API and the
+// sitemap all work from the index, so no other phase would ever notice it.
+//
+// Costs a list and an index read — two operations against the ~50 an invocation
+// has — and repairs only a few per run on purpose: the day the index breaks is
+// usually the day there are no writes left to fix it with, so a backlog is
+// better cleared across the following runs than attempted at once.
+export async function repairIndex(env, { limit = 3 } = {}) {
+  const [{ predictions }, ids] = await Promise.all([getIndex(env), listPredictionIds(env)]);
+  const indexed = new Set(predictions.map((p) => p.id));
+  const orphans = ids.filter((id) => !indexed.has(id));
+  if (!orphans.length) return { records: ids.length, orphans: 0, added: 0, remaining: 0, total: predictions.length };
+
+  const records = [];
+  for (const id of orphans.slice(0, Math.max(1, limit))) {
+    const full = await getPrediction(env, id);
+    if (full) records.push(full);
+  }
+  return {
+    records: ids.length,
+    orphans: orphans.length,
+    added: records.length,
+    remaining: Math.max(0, orphans.length - records.length),
+    total: records.length ? await writeIndex(env, records) : predictions.length,
+  };
 }
 
 async function forecastBatch(env, n) {

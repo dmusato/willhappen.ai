@@ -1,13 +1,13 @@
 // /api/admin/* — everything that costs money or overrides the machine.
 // Guarded by ADMIN_TOKEN; when that secret is unset the whole surface 503s.
 
-import { runCycle } from "../pipeline/run.js";
+import { repairIndex, runCycle } from "../pipeline/run.js";
 import { computeLeaderboard } from "../pipeline/score.js";
 import { resolveOne, scoreRow } from "../pipeline/resolve.js";
 import { harvestMarkets, harvestNews } from "../pipeline/harvest.js";
 import {
   appendScores, dropReview, getIndex, getLedger, getPrediction, getQueue,
-  getReview, listPredictionIds, putPrediction, putScores, writeIndex,
+  getReview, putPrediction, putScores, writeIndex,
 } from "../store/kv.js";
 import { json, requireAdmin } from "./http.js";
 
@@ -27,7 +27,7 @@ export async function handleAdmin(request, env, ctx) {
     case "verdict":  return json(...await setVerdict(env, body));
     case "leaderboard": return json(await computeLeaderboard(env));
     case "rebuild-scores": return json(await rebuildScores(env, ctx));
-    case "reindex":  return json(await reindex(env, { limit: numOr(body.limit, 40) }));
+    case "reindex":  return json(await repairIndex(env, { limit: numOr(body.limit, 40) }));
     default: return json({ error: "unknown_admin_route", routes: ["status", "run", "harvest", "resolve", "review", "verdict", "leaderboard", "rebuild-scores", "reindex"] }, 404);
   }
 }
@@ -87,34 +87,6 @@ async function rebuildScores(env, ctx) {
   await putScores(env, rows);
   const board = await computeLeaderboard(env);
   return { rebuilt: rows.length, rows: board.rows.length };
-}
-
-// Gives an index row back to a record that has none.
-//
-// A run that hits the daily KV write cap can land a prediction and then be
-// refused the index rewrite that lists it: the forecast is paid for and
-// invisible — not in the timeline, the API or the sitemap — and nothing in the
-// pipeline would ever notice, because every other phase works from the index.
-// Reads only the orphans rather than the whole archive, so it stays inside a
-// Worker's subrequest budget; `remaining` says whether to call it again.
-async function reindex(env, { limit = 40 } = {}) {
-  const [{ predictions }, ids] = await Promise.all([getIndex(env), listPredictionIds(env)]);
-  const indexed = new Set(predictions.map((p) => p.id));
-  const orphans = ids.filter((id) => !indexed.has(id));
-
-  const records = [];
-  for (const id of orphans.slice(0, Math.max(1, limit))) {
-    const full = await getPrediction(env, id);
-    if (full) records.push(full);
-  }
-  const total = records.length ? await writeIndex(env, records) : predictions.length;
-  return {
-    records: ids.length,
-    orphans: orphans.length,
-    added: records.length,
-    remaining: Math.max(0, orphans.length - records.length),
-    total,
-  };
 }
 
 const numOr = (v, d) => (Number.isFinite(Number(v)) ? Number(v) : d);
