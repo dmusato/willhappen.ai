@@ -15,10 +15,10 @@ const FORECAST_SCHEMA = {
   shape: {
     type: "object",
     additionalProperties: false,
-    // "because" is asked for in the prompt but not required here: a lab that
-    // chokes on an array in a strict schema should still give us its take
-    // rather than failing the whole answer.
-    required: ["prob", "take"],
+    // Every property, because the request sets strict: true and OpenAI rejects
+    // a strict schema whose properties are not all required — leaving "because"
+    // out to be lenient with other labs 400'd GPT on every question instead.
+    required: ["prob", "take", "because"],
     properties: {
       prob: { type: "integer", minimum: 0, maximum: 100 },
       take: { type: "string" },
@@ -71,9 +71,12 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
         model: m.model,
         messages,
         temperature: 0.2,
-        // Room for real reasoning. At 220 the ceiling alone would have kept
-        // the answer to a sentence however the prompt was worded.
-        maxTokens: 500,
+        // A ceiling is not a bill — a model is charged for what it generates,
+        // not for the room it was given. 500 was enough for the prose answer
+        // but not for one that thinks first and then writes structured JSON:
+        // Gemini spent the budget reasoning and stopped mid-string, which
+        // parses as nothing at all.
+        maxTokens: 1000,
         schema: FORECAST_SCHEMA,
         // The panel runs in parallel, so this is the wait for the slowest lab,
         // not the sum. 40s cut off models whose thinking cannot be switched
@@ -89,7 +92,7 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
         throw new ModelError(
           r.json
             ? `no probability in ${JSON.stringify(r.json).slice(0, 90)}`
-            : `reply was not JSON: ${String(r.content || "").trim().slice(0, 90)}`,
+            : `${r.truncated ? "reply cut off at the token ceiling" : "reply was not JSON"}: ${String(r.content || "").trim().slice(0, 80)}`,
           { model: m.model });
       }
       return {

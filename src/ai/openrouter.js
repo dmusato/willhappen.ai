@@ -158,6 +158,9 @@ export async function chat(env, {
   return {
     content,
     json: schema ? parseJson(content) : null,
+    // "length" means the model was still writing when the ceiling hit, which
+    // looks identical to malformed output once parsing fails.
+    truncated: choice?.finish_reason === "length",
     citations: citationsOf(data),
     model: data.model || model,
     cost: Number(data.usage?.cost) || 0,
