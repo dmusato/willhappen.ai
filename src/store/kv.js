@@ -64,6 +64,20 @@ function indexEntry(p) {
   };
 }
 
+// Enumerating the archive is a list, not a read of each record, so it is cheap;
+// what costs is whatever the caller reads afterwards. Only the repair path needs
+// this — everything else works from the index.
+export async function listPredictionIds(env) {
+  const ids = [];
+  let cursor;
+  do {
+    const page = await env.WH_KV.list({ prefix: "prediction:", cursor });
+    for (const k of page.keys) ids.push(k.name.slice("prediction:".length));
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return ids;
+}
+
 // Upserts by id so a re-forecast replaces the old row instead of duplicating it.
 export async function writeIndex(env, records) {
   const idx = await getIndex(env);
