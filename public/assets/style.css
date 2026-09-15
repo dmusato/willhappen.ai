@@ -556,7 +556,9 @@ p { margin: 0 0 1em; }
   /* The name and the figure need only what they hold; the rest belongs to what
      the model actually said, which is the thing worth reading. */
   display: grid; grid-template-columns: 38px 118px 1fr 64px;
-  gap: 16px; align-items: center;
+  /* Top, not centre: an answer runs to seven lines and a centred name ends up
+     level with the middle of it, far from where reading starts. */
+  gap: 16px; align-items: start;
   padding: 20px 22px; border-radius: var(--r-md);
   background: var(--glass); border: 1px solid var(--hair-soft);
   transition: background .2s var(--ease), border-color .2s var(--ease);
@@ -571,12 +573,26 @@ p { margin: 0 0 1em; }
   font-family: var(--mono); font-size: 13px; font-weight: 500;
   box-shadow: 0 0 0 1px rgba(255,255,255,.2), 0 2px 10px rgba(0,0,0,.4);
 }
-.model-id { display: flex; flex-direction: column; line-height: 1.3; }
+.model-badge, .model-prob { margin-top: 1px; }
+.model-id { display: flex; flex-direction: column; line-height: 1.3; margin-top: 3px; }
 .model-id b { font-weight: 500; font-size: 15px; }
 .model-id em { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-ghost); }
 /* This is the reasoning — the reason anyone opens the page — and it was set
    smaller than the page's own body text and barely above the fine print. */
 .model-note { margin: 0; font-size: 15px; color: var(--text-dim); line-height: 1.55; }
+/* Six models each writing a solid 600-character paragraph is a wall nobody
+   reads to the end of. The same content as a lead and two or three points lets
+   a reader see where one model's case differs from the next without reading
+   both in full. The dash takes the model's own colour, so a point is tied to
+   whoever made it even when the eye has left the badge. */
+.model-take { margin: 0; font-size: 15px; line-height: 1.5; color: var(--text); }
+.model-why { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.model-why li { position: relative; padding-left: 16px; font-size: 14px; line-height: 1.5; color: var(--text-dim); }
+.model-why li::before {
+  content: ""; position: absolute; left: 0; top: .66em;
+  width: 6px; height: 1px; background: var(--c); opacity: .75;
+}
+
 .model-slug {
   display: block; margin-top: 6px;
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em;

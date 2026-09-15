@@ -2,6 +2,7 @@
 // otherwise the direct per-network adapters. Either way a prediction is posted
 // at most once — the checkpoint key is the contract.
 
+import { answer } from "../util.js";
 import { postizConfigured, listChannels, publish, uploadFromUrl } from "./postiz.js";
 import { twitterConfigured, postTweet } from "./twitter.js";
 import { redditConfigured, postRedditLink } from "./reddit.js";
@@ -164,7 +165,10 @@ function longCopy(p, site) {
     .sort((a, b) => b[1].prob - a[1].prob)
     // The stored reasoning is a short paragraph now; a post that quoted six of
     // them in full would be unreadable, so each is cut to its first sentence.
-    .map(([k, m]) => `· ${k}: ${m.prob}%${m.note ? ` — ${firstSentence(m.note, 120)}` : ""}`);
+    .map(([k, m]) => {
+      const said = answer(m);
+      return `· ${k}: ${m.prob}%${said ? ` — ${firstSentence(said.take, 120)}` : ""}`;
+    });
 
   return [
     `🔮 ${p.headline}`,

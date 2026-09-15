@@ -12,6 +12,7 @@
 
 import { PANEL } from "../ai/roster.js";
 import { horizon as horizonOf, topic as topicOf } from "../catalog.js";
+import { answer } from "../util.js";
 import { fmtDate } from "./components.js";
 
 const fence = (s) => String(s || "").replace(/\r/g, "").trim();
@@ -55,7 +56,11 @@ export function predictionMarkdown(p, site) {
     if (!cell) continue;
     const prob = typeof cell.prob === "number" ? `${cell.prob}%` : "no answer";
     lines.push(`### ${m.name} (${m.lab}) — ${prob}`, "");
-    if (cell.note) lines.push(fence(cell.note), "");
+    const said = answer(cell);
+    if (said) {
+      lines.push(fence(said.take), "");
+      if (said.because.length) lines.push(...said.because.map((b) => `- ${fence(b)}`), "");
+    }
     lines.push(`\`${cell.model}\`${cell.queried_at ? ` · asked ${fmtDate(cell.queried_at)}` : ""}`, "");
   }
 

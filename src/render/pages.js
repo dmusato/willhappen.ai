@@ -1,6 +1,7 @@
 // One function per route. Each takes already-loaded data and returns a full
 // HTML document — no page fetches its own content on the client.
 
+import { answer } from "../util.js";
 import { PANEL, rosterForClient } from "../ai/roster.js";
 import { HORIZONS, TOPICS, horizon as horizonOf, topic as topicOf } from "../catalog.js";
 import { h, shell } from "./shell.js";
@@ -200,6 +201,13 @@ ${related.length ? section("More in this thread", rows(related), { kicker: "RELA
   });
 }
 
+// Schema.org wants one string, so the take and its points are joined back into
+// a sentence rather than shipped as markup search engines would only strip.
+const said = (cell) => {
+  const a = answer(cell);
+  return a ? [a.take, ...a.because].join(" ") : "";
+};
+
 // These pages were marked up as Article, which describes the wrapper and not
 // the thing on it. Open, the page is a question with six dated answers; settled,
 // it is a fact-check with a rating and cited sources. Saying so is both more
@@ -259,7 +267,7 @@ function predictionSchema(p, site, canonical) {
       },
       suggestedAnswer: answers.map(({ m, cell }) => ({
         "@type": "Answer",
-        text: `${m.name} (${m.lab}): ${cell.prob}%${cell.note ? ` — ${cell.note}` : ""}`,
+        text: [`${m.name} (${m.lab}): ${cell.prob}%`, said(cell)].filter(Boolean).join(" — "),
         url: canonical,
         datePublished: cell.queried_at || published,
       })),

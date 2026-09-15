@@ -232,7 +232,11 @@ function mock(model, messages, schema) {
       })),
     });
   } else if (schema.name === "forecast") {
-    content = JSON.stringify({ prob: 8 + (pick(84)), note: `Mock rationale from ${model.split("/").pop()}.` });
+    content = JSON.stringify({
+      prob: 8 + (pick(84)),
+      take: `Mock take from ${model.split("/").pop()}: this turns on one thing.`,
+      because: [`Mock point one from ${model.split("/").pop()}.`, "Mock point two."],
+    });
   } else if (schema.name === "verdict") {
     const status = ["happened", "not_happened", "unclear"][pick(3)];
     content = JSON.stringify({

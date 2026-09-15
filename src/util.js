@@ -56,6 +56,37 @@ function singular(w) {
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
+// Cuts at a word boundary. A blunt slice is how a stored answer came to end
+// "...I don't have confirmation the exact date was" — the ellipsis at least
+// tells a reader the sentence was cut rather than abandoned.
+export function clip(s, n) {
+  const t = String(s || "").trim();
+  if (t.length <= n) return t;
+  const cut = t.slice(0, n);
+  const at = cut.lastIndexOf(" ");
+  return `${(at > n * 0.6 ? cut.slice(0, at) : cut).replace(/[\s,;:.]+$/, "")}…`;
+}
+
+// What a model said, in one shape whichever way it was stored.
+//
+// New answers arrive as a take and its points. The two hundred written before
+// that are a single paragraph, so the first sentence becomes the take and the
+// rest become the points — the archive reads the same throughout without
+// paying to ask the panel again.
+export function answer(cell) {
+  if (cell?.take) {
+    return { take: cell.take, because: Array.isArray(cell.because) ? cell.because.filter(Boolean) : [] };
+  }
+  const note = String(cell?.note || "").trim();
+  if (!note) return null;
+  const parts = note.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 2) return { take: note, because: [] };
+  // A trailing fragment with no full stop is the tail of an older blunt slice.
+  const last = parts[parts.length - 1];
+  if (!/[.!?]$/.test(last)) parts[parts.length - 1] = `${last}…`;
+  return { take: parts[0], because: parts.slice(1) };
+}
+
 export function clampInt(v, lo, hi, fallback = null) {
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? clamp(n, lo, hi) : fallback;

@@ -6,6 +6,7 @@
 
 import { PANEL, byKey } from "../ai/roster.js";
 import { horizon as horizonOf, topic as topicOf } from "../catalog.js";
+import { answer } from "../util.js";
 import { h } from "./shell.js";
 
 export const probTone = (v) => (v >= 70 ? "high" : v >= 40 ? "mid" : "low");
@@ -85,18 +86,29 @@ ${rows.map(({ m, cell }) => {
   return `  <li class="model${failed ? " failed" : ""}" style="--c:${m.color};--ink:${m.ink}">
     <span class="model-badge" aria-hidden="true">${h(m.name[0])}</span>
     <div class="model-id"><b>${h(m.name)}</b><em>${h(m.lab)}</em></div>
-    <p class="model-note">${failed ? "<span class='muted'>no answer this run</span>" : h(cell.note || "—")}
+    <div class="model-note">${failed ? "<span class='muted'>no answer this run</span>" : said(cell)}
       <!-- The exact build that answered and the day it did. "Qwen" is a brand,
            and these change under us; a scoreboard has to name the thing that
            can be checked. The date matters as much: a model answering in
            September knows a different world from one answering in December, and
            without it a reader cannot tell a good call from a late one. -->
-      <span class="model-slug">${h(cell.model || m.model)}${cell.queried_at ? ` · asked ${h(fmtDate(cell.queried_at))}` : ""}</span></p>
+      <span class="model-slug">${h(cell.model || m.model)}${cell.queried_at ? ` · asked ${h(fmtDate(cell.queried_at))}` : ""}</span></div>
     <div class="model-prob">${failed ? "–" : `${cell.prob}<i>%</i>`}</div>
     <div class="model-bar"><span style="width:${failed ? 0 : cell.prob}%"></span></div>
   </li>`;
 }).join("\n")}
 </ul>`;
+}
+
+// A lead line and its points, rather than the paragraph six models each used to
+// write. The same content, but a reader can see where one model's case differs
+// from the next without reading both to the end.
+function said(cell) {
+  const a = answer(cell);
+  if (!a) return "—";
+  const why = a.because.length
+    ? `<ul class="model-why">${a.because.map((b) => `<li>${h(b)}</li>`).join("")}</ul>` : "";
+  return `<p class="model-take">${h(a.take)}</p>${why}`;
 }
 
 export function marketPanel(p) {

@@ -8,17 +8,21 @@ import { chat, ModelError } from "../ai/openrouter.js";
 import { PANEL } from "../ai/roster.js";
 import { resolvesBy } from "../catalog.js";
 import { addSpend, putPrediction } from "../store/kv.js";
-import { clampInt, fingerprint, median, pool, slugify, todayISO } from "../util.js";
+import { clampInt, clip, fingerprint, median, pool, slugify, todayISO } from "../util.js";
 
 const FORECAST_SCHEMA = {
   name: "forecast",
   shape: {
     type: "object",
     additionalProperties: false,
-    required: ["prob", "note"],
+    // "because" is asked for in the prompt but not required here: a lab that
+    // chokes on an array in a strict schema should still give us its take
+    // rather than failing the whole answer.
+    required: ["prob", "take"],
     properties: {
       prob: { type: "integer", minimum: 0, maximum: 100 },
-      note: { type: "string" },
+      take: { type: "string" },
+      because: { type: "array", items: { type: "string" } },
     },
   },
 };
@@ -33,13 +37,18 @@ Return the probability (0-100) that the statement will be literally true by that
   would have to break.
 - Do not round to comfortable numbers. 63 is a better answer than 65 when you mean 63.
 - Do not hedge toward 50. If a thing is unlikely, say 8.
-- "note" is your reasoning, 3 to 5 sentences and roughly 400-600 characters. Say what
-  actually decides this: who has to act and by when, what has to clear first, what the
-  base rate is and why this case sits above or below it, and the one development that
-  would most change your mind. Name specifics — dates, bodies, thresholds, precedents —
-  rather than gesturing at "uncertainty" or "many factors". Never restate the question,
-  never hedge toward the middle, and do not repeat the number you already gave. A reader
-  should finish it understanding why you landed here rather than ten points either side.`;
+Your reasoning comes in two parts, and neither may restate the question or repeat the
+number you already gave.
+
+- "take" — one sentence, under 140 characters: the single thing this turns on.
+- "because" — two or three points, each one sentence under 130 characters. Between
+  them cover who has to act and by when, what has to clear first, the base rate and
+  why this case sits above or below it, and the one development that would most
+  change your mind.
+
+Name specifics — dates, bodies, thresholds, precedents. "Many factors" and "remains
+uncertain" say nothing and cost a reader their time. A reader should finish understanding
+why you landed here rather than ten points either side.`;
 
 async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
   const now = new Date();
@@ -79,7 +88,9 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
         cell: {
           model: m.model,
           prob,
-          note: String(r.json?.note || "").trim().slice(0, 700),
+          take: clip(r.json?.take, 180),
+          because: (Array.isArray(r.json?.because) ? r.json.because : [])
+            .slice(0, 3).map((s) => clip(s, 170)).filter(Boolean),
           queried_at: new Date().toISOString(),
           ms: Date.now() - started,
         },
@@ -89,7 +100,7 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
       return {
         key: m.key,
         cost: 0,
-        cell: { model: m.model, prob: null, note: null, error: String(err?.message || err).slice(0, 120), queried_at: new Date().toISOString(), ms: Date.now() - started },
+        cell: { model: m.model, prob: null, take: null, because: [], error: String(err?.message || err).slice(0, 120), queried_at: new Date().toISOString(), ms: Date.now() - started },
       };
     }
   });
