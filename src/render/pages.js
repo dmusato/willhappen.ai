@@ -692,9 +692,11 @@ export function termsPage({ site }) {
   responsible for it. Following a link takes you under someone else's terms.</p>
 
   <h2>What we collect</h2>
-  <p>Google Analytics measures traffic in aggregate. Votes are counted per question against a
-  short-lived fingerprint so one browser cannot stuff the tally; no account is required and no profile
-  is built. If you open an issue or submit a suggestion, that goes to GitHub under their terms and is
+  <p>Google Analytics measures traffic in aggregate, and counts four things people do here:
+  voting, sharing, scrolling far enough to reach the model answers, and opening a question's
+  resolution criteria. Each is recorded against the forecast it happened on, never against you —
+  no account is required and no profile is built. Votes are additionally counted per question
+  against a short-lived fingerprint, so one browser cannot stuff the tally. If you open an issue or submit a suggestion, that goes to GitHub under their terms and is
   public.</p>
 
   <h2>Which site these terms cover</h2>

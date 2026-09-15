@@ -8,6 +8,21 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // ── analytics ───────────────────────────────────────────
+  // Measurement, never a dependency: every call is a no-op when the tag is
+  // absent — local dev, an unset GA_ID, a blocker — and nothing on the page
+  // waits on it or breaks when it throws.
+  //
+  // Only what GA4 cannot already see for itself. Page views, 90% scroll,
+  // outbound clicks, ?q= searches and form submits all arrive through enhanced
+  // measurement; sending our own would double-count them and leave neither
+  // number worth trusting. What is left is the things that happen without a
+  // navigation: a vote, a share, reaching the reasoning, opening the rules.
+  const track = (name, params) => {
+    try { window.gtag && window.gtag("event", name, params || {}); } catch { /* never break a click */ }
+  };
+  const predictionId = () => $(".vote")?.dataset.id || undefined;
+
   // ── toast ───────────────────────────────────────────────
   let toastEl, toastTimer;
   function toast(msg) {
@@ -116,7 +131,11 @@
           body: JSON.stringify({ id, verdict: v, fp: fingerprint() }),
         });
         const data = await res.json();
-        if (res.ok) { paint(data); toast(v === "yes" ? "Voted: it will happen" : "Voted: it won't"); }
+        if (res.ok) {
+          paint(data);
+          track("vote", { verdict: v, prediction: id });
+          toast(v === "yes" ? "Voted: it will happen" : "Voted: it won't");
+        }
         else toast(data.error === "rate_limited" ? "Give it a minute before changing again" : "Couldn't save that vote");
       } catch {
         toast("Offline — vote not saved");
@@ -130,13 +149,26 @@
     if (!bar) return;
     const { url, text } = bar.dataset;
 
+    const shared = (method) => track("share", { method, prediction: predictionId() });
+
     $('[data-act="native"]', bar)?.addEventListener("click", async () => {
       if (navigator.share) {
-        try { await navigator.share({ title: "WillHappen.ai", text, url }); return; } catch { /* dismissed */ }
+        try { await navigator.share({ title: "WillHappen.ai", text, url }); shared("native"); return; } catch { /* dismissed */ }
       }
-      copy(url);
+      copy(url); shared("copy");
     });
-    $('[data-act="copy"]', bar)?.addEventListener("click", () => copy(url));
+    $('[data-act="copy"]', bar)?.addEventListener("click", () => { copy(url); shared("copy"); });
+
+    // The network links leave the site, so GA4 counts them as outbound clicks
+    // of its own. Naming them here too is not double-counting the visit — it
+    // puts every way of sharing under one event, which is the only way to see
+    // that copy-link beats all four networks put together.
+    $$("a.share-btn", bar).forEach((a) => {
+      const host = (a.getAttribute("href") || "").match(/^https?:\/\/([^/]+)/)?.[1] || "";
+      const method = /reddit/.test(host) ? "reddit" : /ycombinator/.test(host) ? "hn"
+        : /twitter|x\.com/.test(host) ? "x" : host.split(".").slice(-2)[0] || "link";
+      a.addEventListener("click", () => shared(method));
+    });
   }
 
   async function copy(url) {
@@ -202,6 +234,29 @@
     targets.forEach((t) => io.observe(t));
   }
 
+  // Did the reader get as far as the reasoning? On a forecast page the answers
+  // sit below the dial and the market panel, so GA4's 90%-scroll event fires
+  // long after this one and cannot stand in for it.
+  function initReadDepth() {
+    const list = $(".models");
+    if (!list || !("IntersectionObserver" in window)) return;
+    const seen = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      seen.disconnect();
+      track("read_answers", { prediction: predictionId() });
+    }, { threshold: 0.2 });
+    seen.observe(list);
+  }
+
+  // Opening the resolution criteria is the clearest signal a reader is checking
+  // the claim rather than skimming it.
+  function initRules() {
+    const rules = $("details.rules");
+    rules?.addEventListener("toggle", () => {
+      if (rules.open) track("open_rules", { prediction: predictionId() });
+    }, { once: true });
+  }
+
   // Submitting a filter should not carry an empty field into the URL.
   function initFilters() {
     const form = $(".filters");
@@ -214,6 +269,7 @@
   const boot = () => {
     initNav(); initParallax(); initOdometer(); initVote();
     initShare(); initSuggest(); initReveal(); initFilters();
+    initReadDepth(); initRules();
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
