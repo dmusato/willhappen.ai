@@ -113,7 +113,10 @@ async function forecastQuestion(env, q, { existingIds = new Set() } = {}) {
       return {
         key: m.key,
         cost: 0,
-        cell: { model: m.model, prob: null, take: null, because: [], error: String(err?.message || err).slice(0, 120), queried_at: new Date().toISOString(), ms: Date.now() - started },
+        // 120 characters cut a provider's 400 off at "Invalid schema for res…"
+        // — precisely the half that says which field it objected to. The whole
+        // point of storing the error is to not need a live repro.
+        cell: { model: m.model, prob: null, take: null, because: [], error: String(err?.message || err).slice(0, 400), queried_at: new Date().toISOString(), ms: Date.now() - started },
       };
     }
   });
