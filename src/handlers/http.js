@@ -12,6 +12,11 @@ export const json = (data, status = 200, extra = {}) =>
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
+      // robots.txt invites agents to the read-only endpoints, which means a
+      // search engine may follow them too. They are the data behind pages that
+      // already exist, so they are fetchable but never a search result of
+      // their own.
+      "x-robots-tag": "noindex",
       ...CORS,
       ...extra,
     },

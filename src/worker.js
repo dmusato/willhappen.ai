@@ -19,7 +19,7 @@ import { json, preflight } from "./handlers/http.js";
 import { handleIndexNowKey } from "./handlers/indexnow.js";
 import { handleApiCatalog, handleArd, handleLlmsTxt } from "./handlers/agents.js";
 import { handleMcp, handleMcpCard } from "./handlers/mcp.js";
-import { listMarkdown, predictionMarkdown } from "./render/markdown.js";
+import { aboutMarkdown, listMarkdown, predictionMarkdown, termsMarkdown } from "./render/markdown.js";
 import { configureShell } from "./render/shell.js";
 import { getIndex, readIndex, writeIndexDoc } from "./store/kv.js";
 import { getLeaderboard } from "./pipeline/score.js";
@@ -43,6 +43,9 @@ export default {
     if (request.method === "OPTIONS") return preflight();
 
     try {
+      const canonical = canonicalRedirect(url, env);
+      if (canonical) return canonical;
+
       // ── API ───────────────────────────────────────────
       if (path.startsWith("/api/")) {
         if (path === "/api/predictions" || path.startsWith("/api/predictions/")) return await handlePredictions(request, env);
@@ -59,6 +62,23 @@ export default {
       const inKey = handleIndexNowKey(env, path);
       if (inKey) return inKey;
 
+      // Crawlers ask for /favicon.ico by name whether or not the page links an
+      // icon, and this was answering every one of them with the HTML 404 page.
+      if (path === "/favicon.ico") return Response.redirect(`${siteUrl(env, url)}/assets/favicon.svg`, 301);
+
+      // The workers.dev preview answers everything the real domain does, so it
+      // is a second crawlable copy of the whole archive. Worth keeping — it is
+      // how a deploy gets looked at — but the canonical tag on those pages only
+      // asks a crawler not to index them, after it has already spent the budget
+      // fetching them. Matched on the hostname rather than on "is not
+      // SITE_URL", so a fork whose SITE_URL still says willhappen.ai shuts out
+      // nothing but its own preview.
+      if (path === "/robots.txt" && url.hostname.toLowerCase().endsWith(".workers.dev")) {
+        return new Response("User-agent: *\nDisallow: /\n", {
+          headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=86400" },
+        });
+      }
+
       // ── machine-readable descriptions ─────────────────
       if (path === "/mcp")                     return await handleMcp(request, env, siteUrl(env, url));
       if (path === "/.well-known/mcp/server-card.json" || path === "/.well-known/mcp.json")
@@ -69,7 +89,10 @@ export default {
 
       // Markdown of any page, by suffix or by Accept header. Agents that can
       // set headers get the negotiated version; everything else adds .md.
-      if (request.method === "GET") {
+      // HEAD too, for the same reason the page renderer below takes it: a
+      // .md URL that answers GET with 200 and HEAD with 404 is one surface
+      // disagreeing with itself.
+      if (request.method === "GET" || request.method === "HEAD") {
         const wantsMd = path.endsWith(".md") ||
           /\btext\/markdown\b/.test(request.headers.get("accept") || "");
         if (wantsMd) {
@@ -189,6 +212,50 @@ function cacheKey(request, url, env) {
   return new Request(keyed, request);
 }
 
+// The one hostname this site is. Empty when SITE_URL is missing, unparseable,
+// or on http — in which case nothing below fires, because sending http traffic
+// to an http origin is a loop rather than a fix.
+export function canonicalHost(env) {
+  try {
+    const u = new URL(String(env.SITE_URL || ""));
+    return u.protocol === "https:" ? u.hostname.toLowerCase() : "";
+  } catch {
+    return "";
+  }
+}
+
+// Every page answers on exactly one URL. Without this it also answers on
+// http://, on www. and on both at once — four crawlable copies of all 357
+// pages on a site whose entire distribution is search, and four entries in a
+// crawl budget that a new domain does not have to spend. SITE_URL already
+// names the one that counts.
+//
+// Only the canonical host and its www. sibling are redirected. A host we do
+// not recognise — localhost under `npm run dev`, the workers.dev preview — is
+// left alone, because a blind redirect to SITE_URL would make local
+// development impossible.
+export function canonicalRedirect(url, env) {
+  const target = canonicalHost(env);
+  if (!target) return null;
+
+  const host = url.hostname.toLowerCase();
+  if (host !== target && host !== `www.${target}`) return null;
+
+  // A Worker on a custom domain is handed the scheme the client actually used,
+  // so url.protocol is the whole test. Deliberately not cf-visitor: that header
+  // would also fire on a request whose URL already reads https, making the
+  // redirect target identical to the request and a loop possible if the header
+  // were ever wrong. As written the target always differs from the request, so
+  // following it lands on the branch above and stops.
+  if (host === target && url.protocol !== "http:") return null;
+
+  const to = new URL(url);
+  to.protocol = "https:";
+  to.hostname = target;
+  to.port = "";
+  return Response.redirect(to.toString(), 301);
+}
+
 // Markdown for the routes that carry content. About and terms are prose that
 // already reads fine as HTML; the archive and the forecasts are the pages an
 // agent is actually after.
@@ -199,6 +266,12 @@ async function renderMarkdown(path, url, env, request) {
       "content-type": "text/markdown; charset=utf-8",
       "cache-control": PAGE_CACHE,
       "x-content-type-options": "nosniff",
+      // Every one of these is the same content as an HTML page that is already
+      // in the sitemap, so indexing both would put the archive in twice and
+      // leave a search engine to guess which copy is the real one. Agents are
+      // unaffected: noindex governs indexing, not fetching. follow keeps the
+      // links inside them worth something.
+      "x-robots-tag": "noindex, follow",
     },
   });
 
@@ -207,6 +280,11 @@ async function renderMarkdown(path, url, env, request) {
     const p = await loadPrediction(env, request, id);
     return p ? md(predictionMarkdown(p, site)) : null;
   }
+
+  // llms.txt points agents at both, so both have to exist. Derived from the
+  // pages rather than written again — see proseMarkdown.
+  if (path === "/about") return md(aboutMarkdown(site));
+  if (path === "/terms") return md(termsMarkdown(site));
 
   if (path === "/timeline" || path === "/") {
     const { predictions } = await getIndex(env);

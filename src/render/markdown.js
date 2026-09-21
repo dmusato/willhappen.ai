@@ -13,6 +13,7 @@
 import { PANEL } from "../ai/roster.js";
 import { horizon as horizonOf, topic as topicOf } from "../catalog.js";
 import { answer } from "../util.js";
+import { aboutBody, termsBody } from "./pages.js";
 import { fmtDate } from "./components.js";
 
 const fence = (s) => String(s || "").replace(/\r/g, "").trim();
@@ -87,6 +88,52 @@ export function listMarkdown(rows, { site, title, intro }) {
   return lines.join("\n");
 }
 
+// /about and /terms are prose, and their Markdown is derived from the HTML
+// those pages already render rather than written out a second time — a second
+// copy is wrong the moment either one is edited, and /about is the contract
+// with the reader. The tag set is small and ours, so a handful of replacements
+// beats a parser; anything without a rule here is dropped rather than printed
+// as angle brackets.
+const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'", nbsp: " " };
+const decode = (s) => s.replace(/&(#?[a-z0-9]+);/gi, (m, k) => ENTITIES[k.toLowerCase()] ?? m);
+
+// Emphasis is kept in paragraphs and dropped in headings, where `## How this
+// works, *in full.*` reads as markup noise rather than as the flourish it is
+// in the rendered page.
+function inline(html, { emphasis = true } = {}) {
+  const stripped = String(html)
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<a\b[^>]*\bhref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
+    .replace(/<(b|strong)>([\s\S]*?)<\/\1>/gi, emphasis ? "**$2**" : "$2")
+    .replace(/<(i|em)>([\s\S]*?)<\/\1>/gi, emphasis ? "*$2*" : "$2")
+    .replace(/<[^>]+>/g, "");
+  return decode(stripped).replace(/\s+/g, " ").trim();
+}
+
+const BLOCKS = /<(h1|h2|h3|p|ul)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+
+export function proseMarkdown(html) {
+  const out = [];
+  for (const [, tag, inner] of String(html).matchAll(BLOCKS)) {
+    const t = tag.toLowerCase();
+    if (t === "ul") {
+      const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)]
+        .map(([, li]) => inline(li)).filter(Boolean);
+      if (items.length) out.push(items.map((i) => `- ${i}`).join("\n"), "");
+      continue;
+    }
+    const text = inline(inner, { emphasis: t === "p" });
+    if (text) out.push(t === "p" ? text : `${"#".repeat(Number(t[1]))} ${text}`, "");
+  }
+  return out.join("\n").trim();
+}
+
+export const aboutMarkdown = (site) => prosePage(aboutBody(), site, "/about");
+export const termsMarkdown = (site) => prosePage(termsBody(), site, "/terms");
+
+const prosePage = (html, site, path) =>
+  `${proseMarkdown(html)}\n\n---\n\nCanonical: ${site}${path}`;
+
 // The convention agents look for first: what this site is, and where the
 // machine-readable versions live. Deliberately short — it is a map, not a copy
 // of the archive.
@@ -103,8 +150,9 @@ the published gap between the panel and the money worth anything.
 
 ## How to read it
 
-- Every page is available as Markdown: send \`Accept: text/markdown\`, or add
-  \`.md\` to any URL (\`${site}/p/{id}.md\`).
+- Every page here is available as Markdown: send \`Accept: text/markdown\`, or
+  add \`.md\` to the URL (\`${site}/p/{id}.md\`, \`${site}/timeline.md\`,
+  \`${site}/topics/{topic}.md\`, \`${site}/about.md\`).
 - \`consensus\` is the median of the panel, not the mean, so one outlier cannot
   drag it.
 - \`edge\` is consensus minus the market price, positive when the models are
@@ -123,6 +171,14 @@ the published gap between the panel and the money worth anything.
 
 - [How it works](${site}/about.md) — sourcing, the panel, the three-tier resolver
 - [Terms and disclaimer](${site}/terms.md) — machine output, not advice
+
+## Using this
+
+Read it, search it, ground an answer on it and cite it — that is what it is for.
+The one reserved use is training. This archive exists to score models, so
+folding its questions, its answers and their settled outcomes back into weights
+corrupts the measurement. Declared in [robots.txt](${site}/robots.txt) as
+\`search=yes, ai-input=yes, ai-train=no\`.
 
 Source code: https://github.com/dmusato/willhappen.ai (MIT)
 `;

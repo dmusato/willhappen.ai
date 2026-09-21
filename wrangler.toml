@@ -25,6 +25,11 @@ binding   = "ASSETS"
 # Pages are rendered by the Worker; public/ only holds CSS, JS and seed JSON,
 # none of which collide with a page route. Anything unmatched falls through.
 not_found_handling = "none"
+# A file in public/ is served without the Worker ever running, which is right
+# for every asset except this one: robots.txt has to differ by hostname, so the
+# workers.dev copy of the site can tell crawlers to stay out while the real
+# domain serves the file below it.
+run_worker_first = ["/robots.txt"]
 
 [[kv_namespaces]]
 binding = "WH_KV"

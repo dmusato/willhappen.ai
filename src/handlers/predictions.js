@@ -24,7 +24,9 @@ export const SORTS = {
 };
 
 export async function handlePredictions(request, env) {
-  if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+  // HEAD is a GET without the body, and a crawler or link checker that probes
+  // with one should not be told the endpoint does not take it.
+  if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "method_not_allowed" }, 405);
 
   const url = new URL(request.url);
   const id = url.pathname.replace(/^\/api\/predictions\/?/, "");

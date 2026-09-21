@@ -645,8 +645,10 @@ function calibrationChart(ranked, min) {
 // than a page that actually tells a reader what this is and what it is not —
 // and the rest of the site is written this way, so legalese here would be the
 // one page that lies about the product's character.
-export function termsPage({ site }) {
-  const body = `
+// The prose lives here once. /terms.md is derived from this same string rather
+// than kept as a second copy, which would drift the moment one was edited.
+export function termsBody() {
+  return `
 <section class="page-head">
   <div class="mono kicker">TERMS &amp; DISCLAIMER</div>
   <h1>What this is,<br><i>and what it isn't.</i></h1>
@@ -711,6 +713,10 @@ export function termsPage({ site }) {
   been reviewed by a lawyer — if you are relying on this project for something consequential, that is
   already the mistake this page is warning you about.</p>
 </div>`;
+}
+
+export function termsPage({ site }) {
+  const body = termsBody();
 
   return shell({
     site, page: "terms", body,
@@ -721,8 +727,10 @@ export function termsPage({ site }) {
 }
 
 // ── about ───────────────────────────────────────────────────
-export function aboutPage({ site }) {
-  const body = `
+// The prose lives here once. /about.md is derived from this same string rather
+// than kept as a second copy, which would drift the moment one was edited.
+export function aboutBody() {
+  return `
 <section class="page-head">
   <div class="mono kicker">METHOD</div>
   <h1>How this works,<br><i>in full.</i></h1>
@@ -791,6 +799,10 @@ export function aboutPage({ site }) {
     <li>None of this is financial advice.</li>
   </ul>
 </div>`;
+}
+
+export function aboutPage({ site }) {
+  const body = aboutBody();
 
   return shell({
     site, page: "about", body,

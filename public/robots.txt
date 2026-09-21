@@ -1,5 +1,42 @@
+# As a condition of accessing this website, you agree to abide by the following
+# content signals:
+#
+#   (a) if a content signal = yes, you may collect content for that use;
+#   (b) if a content signal = no, you may not;
+#   (c) if a signal is absent, no preference is expressed either way.
+#
+#   search    building a search index and returning links and short excerpts.
+#             Does not cover AI-generated search summaries.
+#   ai-input  feeding content to a model at answer time — retrieval augmented
+#             generation, grounding, a live citation.
+#   ai-train  training or fine-tuning a model.
+#
+# These are rights reservations under Article 4(3) of EU Directive 2019/790 and
+# any other applicable law. They grant nothing else.
+#
+# Why this combination on a site that is otherwise MIT and publishes
+# everything: search and ai-input are the entire point. Every page has a
+# Markdown twin, the archive is a JSON API, /mcp serves it as tools, and being
+# read and cited live is what the thing is for.
+#
+# ai-train is the one exception, and not for rights reasons. This is a
+# scoreboard: it publishes six models' probabilities on dated questions and then
+# grades them against what actually happened. Folding those questions, those
+# answers and their resolved outcomes back into model weights contaminates the
+# thing being measured — the same reason no model here is ever shown the market
+# price before it answers.
+
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
-Disallow: /api/
+
+# The read-only endpoints stay open: llms.txt sends agents to /api/predictions,
+# /api/leaderboard and /api/catalog, and a blanket Disallow: /api/ made the site
+# forbid what it had just advertised. They carry X-Robots-Tag: noindex instead,
+# so an agent can fetch them and a search engine will not index JSON as a page.
+# What stays closed writes something or costs a KV read per question.
+Disallow: /api/admin/
+Disallow: /api/vote
+Disallow: /api/suggest
 
 Sitemap: https://willhappen.ai/sitemap.xml
