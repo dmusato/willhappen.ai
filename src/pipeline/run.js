@@ -130,8 +130,16 @@ export async function repairIndex(env, { limit = 3 } = {}) {
 }
 
 async function forecastBatch(env, n) {
-  const questions = await takeQueue(env, n);
-  if (!questions.length) return { forecast: 0, reason: "queue_empty" };
+  const taken = await takeQueue(env, n);
+  if (!taken.length) return { forecast: 0, reason: "queue_empty" };
+
+  // A question can wait in the queue past its own deadline — news sits below
+  // markets in priority. Forecasting it then means asking the panel about
+  // something already settled, which it cannot see and gets scored on anyway.
+  const today = new Date().toISOString().slice(0, 10);
+  const questions = taken.filter((q) => !q.resolves_by || q.resolves_by >= today);
+  const expired = taken.length - questions.length;
+  if (!questions.length) return { forecast: 0, expired };
 
   const { predictions } = await getIndex(env);
   const ids = new Set(predictions.map((p) => p.id));
@@ -152,7 +160,7 @@ async function forecastBatch(env, n) {
   if (retry.length) await pushQueue(env, retry);
 
   if (made.length) await writeIndex(env, made);
-  return { forecast: made.length, failed: failed.length, requeued: retry.length, ids: made.map((p) => p.id) };
+  return { forecast: made.length, failed: failed.length, requeued: retry.length, expired, ids: made.map((p) => p.id) };
 
 }
 

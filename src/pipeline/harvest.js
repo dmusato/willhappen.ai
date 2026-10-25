@@ -17,7 +17,7 @@ import { collectMarkets } from "../markets/index.js";
 import { addSpend, getIndex, getQueue, nextCursor, pushQueue } from "../store/kv.js";
 import { checkPolarity } from "../ai/polarity.js";
 import { discoverQuestions } from "../discover/suggest.js";
-import { fingerprint, normalizeQuestion } from "../util.js";
+import { fingerprint, normalizeQuestion, todayISO } from "../util.js";
 
 const CURATE_SCHEMA = {
   name: "harvest",
@@ -31,11 +31,16 @@ const CURATE_SCHEMA = {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["ref", "headline", "topic", "horizon", "context", "keep"],
+          required: ["ref", "headline", "topic", "horizon", "context", "deadline", "keep"],
           properties: {
             ref: { type: "integer" },
             keep: { type: "boolean" },
             headline: { type: "string" },
+            // YYYY-MM-DD or "". Without it a news question's deadline was its
+            // horizon bucket counted from harvest day, so "the Fed decides on
+            // September 16" waited until the 21st and "before October" until
+            // mid-October — the page showed a date the headline contradicted.
+            deadline: { type: "string" },
             topic: { type: "string", enum: TOPIC_IDS },
             horizon: { type: "string", enum: HORIZON_IDS },
             context: { type: "string" },
@@ -66,6 +71,13 @@ Rules:
 - "topic" must be the closest fit from the allowed list.
 - "horizon" is the bucket closest to the item's stated deadline. Never pick one that
   ends before the deadline.
+- "deadline" is the date the statement is settled by, as YYYY-MM-DD: the date it names,
+  or the last day of the month or period it names. Use "" only when the source gives none.
+- Only what is still undecided today. If the source reports the thing already happened,
+  was already decided, or its date has passed, set "keep": false — a forecast of
+  something already in the news is not a forecast.
+- No relative time. Never "next", "upcoming", "this week" or "later this month": name the
+  date or the specific release, so the statement still means one thing a month from now.
 - Set "keep": false for anything unfalsifiable, a joke, a duplicate of another item in
   this batch, a pure sports score, or about a private individual who is not a public figure.`;
 
@@ -180,25 +192,30 @@ For each: one line on what happened, and one line on the specific open question 
   });
   await addSpend(env, { cost: brief.cost, calls: 1, harvests: 1 });
 
+  const { known, open } = await archive(env);
   const curated = await curate(
     env,
     [`0. ${brief.content.slice(0, 4000)}`],
-    `Source: a news briefing on ${beat.query}. Today is ${day}. Extract up to ${want} separate questions from it; number your "ref" values 0,1,2,… in the order you extract them, ignoring the item numbering above. Prefer topics from: ${beat.topics.join(", ")}.`,
+    `Source: a news briefing on ${beat.query}. Today is ${day}. Extract up to ${want} separate questions from it; number your "ref" values 0,1,2,… in the order you extract them, ignoring the item numbering above. Prefer topics from: ${beat.topics.join(", ")}.${alreadyAsked(open)}`,
   );
 
-  const known = await knownFingerprints(env);
   const queued = [];
   for (const c of curated) {
     const fp = fingerprint(c.headline);
     if (known.has(fp)) continue;
+    const due = statedDeadline(c.deadline, day);
+    if (due.past) {
+      console.warn(`[harvest] dropped, deadline already passed: "${c.headline}" (${c.deadline})`);
+      continue;
+    }
     known.add(fp);
     queued.push({
       fingerprint: fp,
       headline: c.headline,
       context: c.context,
       topic: c.topic,
-      horizon: c.horizon,
-      resolves_by: null,
+      horizon: due.date ? horizonForDate(due.date, c.horizon) : c.horizon,
+      resolves_by: due.date,
       source: "news",
       source_url: null,
       rules: null,
@@ -232,7 +249,7 @@ export async function harvestSearches(env, { want = 6 } = {}) {
   // pay to rewrite a question we already hold nor risk a second rewrite of it
   // landing under different wording. This is what `fingerprint` on the stored
   // record is for, and it is the same trick the market path uses.
-  const known = await knownFingerprints(env);
+  const { known, open } = await archive(env);
   const fresh = asked
     .map((q) => ({ q, fp: fingerprint(normalizeQuestion(q)) }))
     .filter(({ q, fp }) => !known.has(fp) && !known.has(fingerprint(q)));
@@ -256,7 +273,7 @@ value of the question.
 
 The list is ordered by how often each is searched, most first. Work from the top: item 0
 is the page most people are looking for. Extract up to ${want} and keep the same "ref" as
-the item you took each from, so the ranking is not lost. Prefer the topic ${t.id}.`,
+the item you took each from, so the ranking is not lost. Prefer the topic ${t.id}.${alreadyAsked(open)}`,
   );
 
   const queued = [];
@@ -265,6 +282,8 @@ the item you took each from, so the ranking is not lost. Prefer the topic ${t.id
     if (!src) continue;
     const headFp = fingerprint(normalizeQuestion(c.headline));
     if (known.has(headFp)) continue;
+    const due = statedDeadline(c.deadline, todayISO());
+    if (due.past) continue;
     known.add(headFp);
     known.add(src.fp);
     queued.push({
@@ -275,8 +294,8 @@ the item you took each from, so the ranking is not lost. Prefer the topic ${t.id
       headline: c.headline,
       context: c.context,
       topic: c.topic,
-      horizon: c.horizon,
-      resolves_by: null,
+      horizon: due.date ? horizonForDate(due.date, c.horizon) : c.horizon,
+      resolves_by: due.date,
       source: "search",
       source_url: null,
       rules: null,
@@ -292,7 +311,7 @@ the item you took each from, so the ranking is not lost. Prefer the topic ${t.id
   }
 
   const added = await pushQueue(env, queued);
-  return { added, topic: t.id, asked: questions.length, source: "searches" };
+  return { added, topic: t.id, asked: asked.length, source: "searches" };
 }
 
 // ── shared ──────────────────────────────────────────────────
@@ -327,12 +346,53 @@ async function curate(env, items, preamble) {
 // The published archive plus whatever is already queued. Both are single KV
 // reads, which is why dedupe lives here and not in a per-question lookup.
 //
+// `open` is what a hash cannot catch. Six news sweeps on one morning each
+// wrote their own "the Fed raises rates at its September meeting", worded
+// differently enough that no fingerprint matched, and every copy was forecast,
+// resolved and scored — the same event counted seven times on the leaderboard.
+// Only the curator can tell a rewording from a different question, so it is
+// shown what is already open.
+async function archive(env) {
+  const [idx, queue] = await Promise.all([getIndex(env), getQueue(env)]);
+  const today = todayISO();
+  const open = [
+    ...queue.map((q) => q.headline),
+    ...idx.predictions
+      .filter((p) => (p.verdict === null || p.verdict === undefined) && (!p.resolves_by || p.resolves_by >= today))
+      .sort((a, b) => String(a.resolves_by).localeCompare(String(b.resolves_by)))
+      .map((p) => p.headline),
+  ].filter(Boolean).slice(0, OPEN_SHOWN);
+  return { known: fingerprintsOf(idx.predictions, queue), open };
+}
+
+// Soonest deadlines first: a news sweep repeats what is about to happen, not
+// what resolves in 2035. Capped so the prompt stays a few thousand tokens.
+const OPEN_SHOWN = 120;
+
+function alreadyAsked(open) {
+  if (!open.length) return "";
+  return `\n\nAlready open in the archive. Set "keep": false for anything that asks the same thing as one of these, however it is worded — a different date or threshold is a different question, a different phrasing is not:\n${open.map((h) => `- ${h}`).join("\n")}`;
+}
+
+// A date the curator read off the source. One already behind us means the
+// briefing was reporting an outcome, not an open question.
+export function statedDeadline(value, today) {
+  const s = String(value || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || !Number.isFinite(Date.parse(s))) return { date: null, past: false };
+  if (s <= today) return { date: null, past: true };
+  return { date: s, past: false };
+}
+
 // Three keys go into the set, because a question changes shape as it moves
 // through the pipeline: the fingerprint of the source question (stored on the
 // record), the fingerprint of the curated headline, and — for markets — the
 // exchange's own id. Missing any one of them re-publishes the same question.
 async function knownFingerprints(env) {
   const [idx, queue] = await Promise.all([getIndex(env), getQueue(env)]);
+  return fingerprintsOf(idx.predictions, queue);
+}
+
+function fingerprintsOf(predictions, queue) {
   const set = new Set();
   const add = (headline) => {
     if (!headline) return;
@@ -343,7 +403,7 @@ async function knownFingerprints(env) {
     // the shape a rewrite of the same search actually takes.
     set.add(fingerprint(normalizeQuestion(headline)));
   };
-  for (const p of idx.predictions) {
+  for (const p of predictions) {
     if (p.fp) set.add(p.fp);
     if (p.market_id) set.add(p.market_id);
     add(p.headline);

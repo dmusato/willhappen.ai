@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dueForResolution, resolverConfig, resolveOne } from "../src/pipeline/resolve.js";
+import { dueForResolution, mergeSources, resolverConfig, resolveOne } from "../src/pipeline/resolve.js";
 
 // ── in-memory KV, enough for the resolver's reads and writes ──
 function fakeEnv(records = [], extra = {}) {
@@ -206,4 +206,47 @@ test("a unanimous 'did not happen' resting only on silence never publishes", asy
   assert.equal(out.verdict, null, "silence alone must never become a published verdict");
   assert.equal(read("prediction:nobody-reported-it-9a8b").verdict, null);
   assert.equal(read("review:queue")[0].reason, "absence_of_coverage");
+});
+
+// Two jurors agreeing while the third returned nothing used to publish, and the
+// page then showed the third as "unclear" — a dissent that had been ignored.
+test("a juror with no usable answer blocks publication", async () => {
+  const { env, read } = fakeEnv([{
+    id: "two-of-three-7c6d",
+    headline: "The opening ceremony takes place as scheduled on September 19, 2026",
+    topic: "geo", horizon: "1w", resolves_by: "2026-09-21",
+    source: "news", market: null, consensus_prob: 90, models: { claude: { prob: 90 } }, verdict: null,
+  }], { MOCK_LLM: "", OPENROUTER_API_KEY: "test-key" });
+
+  const yes = JSON.stringify({
+    status: "happened", basis: "direct_evidence", confidence: 99,
+    summary: "Outlets report the ceremony took place.",
+    sources: [{ title: "A", url: "https://a.example/1" }, { title: "B", url: "https://b.example/2" }],
+  });
+  let call = 0;
+  const out = await withFetch(() => {
+    call++;
+    // Call 1 is the search; call 2 is the first juror, cut off mid-answer.
+    const content = call === 1 ? "Evidence." : call === 2 ? '{"status":"happ' : yes;
+    return jsonRes({
+      choices: [{ message: { content }, finish_reason: call === 2 ? "length" : "stop" }],
+      citations: ["https://a.example/1", "https://b.example/2"],
+      usage: { cost: 0 },
+    });
+  }, () => resolveOne(env, "two-of-three-7c6d"));
+
+  assert.equal(out.verdict, null, "two of three is not unanimous");
+  assert.equal(read("prediction:two-of-three-7c6d").verdict, null);
+  const item = read("review:queue")[0];
+  assert.equal(item.reason, "juror_no_answer");
+  assert.equal(item.votes.filter((v) => v.no_answer).length, 1);
+});
+
+test("our own pages are never cited as evidence", () => {
+  const merged = mergeSources(
+    [{ title: "Us", url: "https://willhappen.ai/p/some-question-1fot" }, { title: "A", url: "https://a.example/1" }],
+    [{ title: "Us again", url: "https://www.willhappen.ai/p/other" }, { title: "B", url: "https://b.example/2" }],
+    { SITE_URL: "https://willhappen.ai" },
+  );
+  assert.deepEqual(merged.map((s) => s.url), ["https://a.example/1", "https://b.example/2"]);
 });

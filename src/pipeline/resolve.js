@@ -29,6 +29,9 @@ import { pool } from "../util.js";
 // family agreeing tells you about the family, not about the world.
 const JURY = ["claude", "gpt", "gemini"];
 
+const STATUSES = new Set(["happened", "not_happened", "unclear"]);
+const ABSTAIN = { status: "unclear", basis: "insufficient", confidence: 0 };
+
 const VERDICT_SCHEMA = {
   name: "verdict",
   shape: {
@@ -191,25 +194,33 @@ ${cited || "(none returned)"}`;
       const r = await chat(env, {
         model: m.model,
         temperature: 0,
-        maxTokens: 700,
+        // 700 left no room for a summary plus six long source URLs: answers
+        // were cut off mid-JSON and parsed as nothing.
+        maxTokens: 1200,
         schema: VERDICT_SCHEMA,
         messages: [{ role: "system", content: JUDGE }, { role: "user", content: brief }],
       });
-      return { key: m.key, cost: r.cost, ...(r.json || {}) };
+      if (!STATUSES.has(r.json?.status)) {
+        console.warn(`[resolve] juror ${m.key}: no usable verdict${r.truncated ? " (truncated)" : ""}: ${String(r.content).slice(0, 160)}`);
+        return { ...ABSTAIN, key: m.key, cost: r.cost, no_answer: true };
+      }
+      return { key: m.key, cost: r.cost, ...r.json };
     } catch (err) {
       console.warn(`[resolve] juror ${m.key}: ${err?.message || err}`);
-      return { key: m.key, cost: 0, status: "unclear", basis: "insufficient", confidence: 0 };
+      return { ...ABSTAIN, key: m.key, cost: 0, no_answer: true };
     }
   });
   await addSpend(env, { cost: votes.reduce((a, v) => a + (v.cost || 0), 0), calls: votes.length, resolves: 1 });
 
-  const heard = votes.filter((v) => v.status);
-  const decided = heard.filter((v) => v.status === "happened" || v.status === "not_happened");
-  const unanimous = decided.length === heard.length && heard.length >= 2 &&
+  // A juror that returned nothing usable is an abstention, not an absence.
+  // Dropping it let two jurors publish on their own while the page showed the
+  // third as "unclear" — eleven verdicts went out that way before this check.
+  const decided = votes.filter((v) => v.status === "happened" || v.status === "not_happened");
+  const unanimous = votes.length === JURY.length && decided.length === votes.length &&
     new Set(decided.map((v) => v.status)).size === 1;
 
-  const sources = mergeSources(votes.flatMap((v) => v.sources || []), evidence.citations);
-  const confidence = heard.length ? Math.round(heard.reduce((a, v) => a + (v.confidence || 0), 0) / heard.length) : 0;
+  const sources = mergeSources(votes.flatMap((v) => v.sources || []), evidence.citations, env);
+  const confidence = votes.length ? Math.round(votes.reduce((a, v) => a + (v.confidence || 0), 0) / votes.length) : 0;
   const status = unanimous ? decided[0].status : "unclear";
 
   // A "did not happen" resting only on nobody having written about it is the
@@ -227,7 +238,11 @@ ${cited || "(none returned)"}`;
     confidence,
     unanimous,
     only_silence: onlySilence,
-    votes: votes.map((v) => ({ model: v.key, status: v.status || "unclear", basis: v.basis || "insufficient", confidence: v.confidence || 0 })),
+    no_answer: votes.some((v) => v.no_answer),
+    votes: votes.map((v) => ({
+      model: v.key, status: v.status || "unclear", basis: v.basis || "insufficient", confidence: v.confidence || 0,
+      ...(v.no_answer ? { no_answer: true } : {}),
+    })),
     note: (decided[0]?.summary || votes.find((v) => v.summary)?.summary || "").slice(0, 400),
     sources,
   };
@@ -298,7 +313,7 @@ export async function resolveOne(env, id, { cfg = null } = {}) {
     status: jury.status,
     confidence: jury.confidence,
     method: "jury",
-    reason: !jury.unanimous ? "jury_split" : jury.only_silence ? "absence_of_coverage" : jury.sources.length < config.minSources ? "too_few_sources" : "low_confidence",
+    reason: jury.no_answer ? "juror_no_answer" : !jury.unanimous ? "jury_split" : jury.only_silence ? "absence_of_coverage" : jury.sources.length < config.minSources ? "too_few_sources" : "low_confidence",
     summary: jury.note,
     sources: jury.sources,
     votes: jury.votes,
@@ -376,12 +391,18 @@ function reviewItem(p, { status, confidence, method, reason, summary, sources, v
 
 // The jurors' lists are primary; search citations backfill them so a page
 // always has something a reader can click.
-function mergeSources(fromJudges, fromSearch) {
+//
+// Our own pages never count. The search engine indexes them, and a question's
+// page citing itself as evidence of its own outcome is circular — it also pads
+// the source count that the publish threshold reads.
+export function mergeSources(fromJudges, fromSearch, env = {}) {
+  const own = new Set(["willhappen.ai", hostOf(String(env.SITE_URL || ""))].filter(Boolean));
   const out = [];
   const seen = new Set();
   for (const s of [...(fromJudges || []), ...(fromSearch || [])]) {
     const url = String(s?.url || "").trim();
     if (!/^https?:\/\//.test(url) || seen.has(url)) continue;
+    if (own.has(hostOf(url))) continue;
     seen.add(url);
     out.push({ title: String(s.title || hostOf(url)).slice(0, 160), url });
     if (out.length >= 6) break;

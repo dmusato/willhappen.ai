@@ -232,6 +232,7 @@ function mock(model, messages, schema) {
         topic: ["ai", "markets", "geo", "climate"][(seed + i) % 4],
         horizon: ["1m", "6m", "1y", "3y"][(seed + i) % 4],
         context: "Synthetic context generated in mock mode.",
+        deadline: "",
       })),
     });
   } else if (schema.name === "forecast") {
